@@ -1,0 +1,28 @@
+.basedir "pa.joeq"
+
+### Domains
+
+.include "fielddomains.pa"
+
+# found by findbestorder
+.bddvarorder N0_F0_I0_M1_M0_V1_V0_T0_Z0_T1_H0_H1
+
+### Relations
+loan_issued_at (Origin, Loan, Point) input
+cfg_edge (Point, Point) input
+loan_killed_at (Loan, Point) input
+subset_base (Origin, Origin, Point) input
+loan_invalidated_at (Point, Loan) input
+var_used_at (Variable, Point) input
+var_defined_at (Variable, Point) input
+var_dropped_at (Variable, Point) input
+use_of_var_derefs_origin (Variable, Origin) input
+drop_of_var_derefs_origin (Variable, Origin) input
+child_path (Path, Path) input
+path_is_var (Path, Variable) input
+path_assigned_at_base (Path, Point) input
+path_moved_at_base (Path, Point) input
+path_accessed_at_base (Path, Point) input
+known_placeholder_subset (Origin, Origin) input
+placeholder (Origin, Loan) input
+
