@@ -1,3 +1,4 @@
+use crate::intern::Interner;
 use biodivine_lib_bdd::Bdd;
 use biodivine_lib_bdd::BddVariableSet;
 use facts::LocalFacts;
@@ -187,11 +188,11 @@ fn main() {
             count.loan.insert(l.clone(), count.loan.len());
         }
     }
-    dump_map("origin", &count.origin);
-    dump_map("loan", &count.loan);
-    dump_map("path", &count.path);
-    dump_map("point", &count.point);
-    dump_map("variable", &count.variable);
+    dump_map("origin", &count.origin, &tables.origins);
+    dump_map("loan", &count.loan, &tables.loans);
+    dump_map("path", &count.path, &tables.paths);
+    dump_map("point", &count.point, &tables.points);
+    dump_map("variable", &count.variable, &tables.variables);
 
     // origin1 origin2
     // point1 point2
@@ -340,13 +341,13 @@ fn dump_bdd(bddvar_count: usize, bdd: Bdd, name: &str) -> std::io::Result<()> {
     let mut file = File::create(&path)?;
     // dbg!("{:?}{:?}",name,&bdd);
     if (bdd.size() == 1) {
-        if bdd.0[0].low_link.0 == 0 {
-            // always false
-            file.write("0 0 0".as_bytes())?;
-        } else {
-            // always true
-            file.write("0 0 1".as_bytes())?;
-        }
+        // always false
+        file.write("0 0 0".as_bytes())?;
+        return Ok(());
+    }
+    if (bdd.size() == 2) {
+        // always true
+        file.write("0 0 1".as_bytes())?;
         return Ok(());
     }
     // no 0 1
@@ -373,11 +374,15 @@ fn dump_bdd(bddvar_count: usize, bdd: Bdd, name: &str) -> std::io::Result<()> {
 }
 
 // dump .map file
-fn dump_map<T: Debug>(name: &str, mp: &HashMap<T, usize>) -> std::io::Result<()> {
+fn dump_map<T: From<usize> + Into<usize> + Copy>(
+    name: &str,
+    mp: &HashMap<T, usize>,
+    interner: &Interner<T>,
+) -> std::io::Result<()> {
     std::fs::create_dir("pa.joeq");
-    let mut vec = vec![String::new(); mp.len()];
+    let mut vec = vec![""; mp.len()];
     for (k, v) in mp {
-        vec[v.clone()] = format!("{:?}", k);
+        vec[v.clone()] = interner.untern(*k);
     }
     let mut path: String = "pa.joeq/".to_owned();
     path += name;
