@@ -1,5 +1,6 @@
+use biodivine_lib_bdd::Bdd;
+use biodivine_lib_bdd::BddVariableSet;
 use facts::LocalFacts;
-use once_cell::sync::OnceCell;
 use polonius_engine::FactTypes;
 use std::collections::HashMap;
 use std::fmt::Debug;
@@ -9,25 +10,22 @@ use std::path::Path;
 
 mod facts;
 mod intern;
+mod parse;
 mod tab_delim;
-
-// static INSTANCE: OnceCell<HashMap<usize, usize>> = OnceCell::new();
 
 // point1,point2,
 // origin1, origin2,
 // loan
 // var
 // path1,path2
+// TODO change order to speed up
 static V: [&'static str; 8] = [
-    "origin1", "origin2", "loan", "var", "path1", "path2", "point1", "point2",
+    "origin1", "origin2", "loan", "variable", "path1", "path2", "point1", "point2",
 ];
 
-// count_bit:HashMap<&'static,usize>
-// mp:HashMap<&'static str,Vec<usize>>::new()
-// next_power_of_two()
-
+// TODO rename
 #[derive(Debug)]
-struct Count<T: FactTypes> {
+pub struct Count<T: FactTypes> {
     origin: HashMap<T::Origin, usize>,
     loan: HashMap<T::Loan, usize>,
     point: HashMap<T::Point, usize>,
@@ -195,16 +193,26 @@ fn main() {
     dump_map("point", &count.point);
     dump_map("variable", &count.variable);
 
-    let mut mp: HashMap<&'static str, Vec<usize>> = HashMap::new();
-    // distinguish with 0/1 in BDD
-    let mut index: usize = 2;
+    // origin1 origin2
+    // point1 point2
+    // path1 path2
+    // loan variable
+    let bddvar_count: usize = 2 * log2(count.origin.len().next_power_of_two())
+        + log2(count.loan.len().next_power_of_two())
+        + log2(count.variable.len().next_power_of_two())
+        + 2 * log2(count.path.len().next_power_of_two())
+        + 2 * log2(count.point.len().next_power_of_two());
+    let variable_set = BddVariableSet::new_anonymous(bddvar_count as u16);
+
+    let mut index: usize = 0;
+    let mut mp: HashMap<&'static str, Vec<Bdd>> = HashMap::new();
 
     for s in V {
         match s {
             "origin1" => {
                 let mut v = vec![];
                 for _i in 0..log2(count.origin.len().next_power_of_two()) {
-                    v.push(index);
+                    v.push(variable_set.mk_var_by_name(&("x_".to_owned() + &index.to_string())));
                     index += 1;
                 }
                 mp.insert(s, v);
@@ -212,7 +220,7 @@ fn main() {
             "origin2" => {
                 let mut v = vec![];
                 for _i in 0..log2(count.origin.len().next_power_of_two()) {
-                    v.push(index);
+                    v.push(variable_set.mk_var_by_name(&("x_".to_owned() + &index.to_string())));
                     index += 1;
                 }
                 mp.insert(s, v);
@@ -220,15 +228,15 @@ fn main() {
             "loan" => {
                 let mut v = vec![];
                 for _i in 0..log2(count.loan.len().next_power_of_two()) {
-                    v.push(index);
+                    v.push(variable_set.mk_var_by_name(&("x_".to_owned() + &index.to_string())));
                     index += 1;
                 }
                 mp.insert(s, v);
             }
-            "var" => {
+            "variable" => {
                 let mut v = vec![];
                 for _i in 0..log2(count.variable.len().next_power_of_two()) {
-                    v.push(index);
+                    v.push(variable_set.mk_var_by_name(&("x_".to_owned() + &index.to_string())));
                     index += 1;
                 }
                 mp.insert(s, v);
@@ -236,7 +244,7 @@ fn main() {
             "path1" => {
                 let mut v = vec![];
                 for _i in 0..log2(count.path.len().next_power_of_two()) {
-                    v.push(index);
+                    v.push(variable_set.mk_var_by_name(&("x_".to_owned() + &index.to_string())));
                     index += 1;
                 }
                 mp.insert(s, v);
@@ -244,7 +252,7 @@ fn main() {
             "path2" => {
                 let mut v = vec![];
                 for _i in 0..log2(count.path.len().next_power_of_two()) {
-                    v.push(index);
+                    v.push(variable_set.mk_var_by_name(&("x_".to_owned() + &index.to_string())));
                     index += 1;
                 }
                 mp.insert(s, v);
@@ -252,7 +260,7 @@ fn main() {
             "point1" => {
                 let mut v = vec![];
                 for _i in 0..log2(count.point.len().next_power_of_two()) {
-                    v.push(index);
+                    v.push(variable_set.mk_var_by_name(&("x_".to_owned() + &index.to_string())));
                     index += 1;
                 }
                 mp.insert(s, v);
@@ -260,7 +268,7 @@ fn main() {
             "point2" => {
                 let mut v = vec![];
                 for _i in 0..log2(count.point.len().next_power_of_two()) {
-                    v.push(index);
+                    v.push(variable_set.mk_var_by_name(&("x_".to_owned() + &index.to_string())));
                     index += 1;
                 }
                 mp.insert(s, v);
@@ -269,22 +277,99 @@ fn main() {
         }
     }
 
-    dbg!("{:?}", mp);
+    dbg!("{:?}", &count);
+    // dbg!("{:?}", &mp);
 
-    // INSTANCE.get_or_init(|| {
-    // let mut m = HashMap::new();
-    // m.insert(13, 12);
-    // m
-    // });
+    let bdd: Bdd = parse::parse_cfg_edge(&count, &all_facts, &mp, &variable_set);
+    dump_bdd(bddvar_count, bdd, "cfg_edge");
+
+    let bdd: Bdd = parse::parse_child_path(&count, &all_facts, &mp, &variable_set);
+    dump_bdd(bddvar_count, bdd, "child_path");
+
+    let bdd: Bdd = parse::parse_drop_of_var_derefs_origin(&count, &all_facts, &mp, &variable_set);
+    dump_bdd(bddvar_count, bdd, "drop_of_var_derefs_origin");
+
+    let bdd: Bdd = parse::parse_use_of_var_derefs_origin(&count, &all_facts, &mp, &variable_set);
+    dump_bdd(bddvar_count, bdd, "use_of_var_derefs_origin");
+
+    let bdd: Bdd = parse::parse_known_placeholder_subset(&count, &all_facts, &mp, &variable_set);
+    dump_bdd(bddvar_count, bdd, "known_placeholder_subset");
+
+    let bdd: Bdd = parse::parse_loan_invalidated_at(&count, &all_facts, &mp, &variable_set);
+    dump_bdd(bddvar_count, bdd, "loan_invalidated_at");
+
+    let bdd: Bdd = parse::parse_loan_killed_at(&count, &all_facts, &mp, &variable_set);
+    dump_bdd(bddvar_count, bdd, "loan_killed_at");
+
+    let bdd: Bdd = parse::parse_loan_issued_at(&count, &all_facts, &mp, &variable_set);
+    dump_bdd(bddvar_count, bdd, "loan_issued_at");
+
+    let bdd: Bdd = parse::parse_path_accessed_at_base(&count, &all_facts, &mp, &variable_set);
+    dump_bdd(bddvar_count, bdd, "path_accessed_at_base");
+
+    let bdd: Bdd = parse::parse_path_assigned_at_base(&count, &all_facts, &mp, &variable_set);
+    dump_bdd(bddvar_count, bdd, "path_assigned_at_base");
+
+    let bdd: Bdd = parse::parse_path_moved_at_base(&count, &all_facts, &mp, &variable_set);
+    dump_bdd(bddvar_count, bdd, "path_moved_at_base");
+
+    let bdd: Bdd = parse::parse_path_is_var(&count, &all_facts, &mp, &variable_set);
+    dump_bdd(bddvar_count, bdd, "path_is_var");
+
+    let bdd: Bdd = parse::parse_placeholder(&count, &all_facts, &mp, &variable_set);
+    dump_bdd(bddvar_count, bdd, "placeholder");
+
+    let bdd: Bdd = parse::parse_subset_base(&count, &all_facts, &mp, &variable_set);
+    dump_bdd(bddvar_count, bdd, "subset_base");
+
+    let bdd: Bdd = parse::parse_var_defined_at(&count, &all_facts, &mp, &variable_set);
+    dump_bdd(bddvar_count, bdd, "var_defined_at");
+
+    let bdd: Bdd = parse::parse_var_dropped_at(&count, &all_facts, &mp, &variable_set);
+    dump_bdd(bddvar_count, bdd, "var_dropped_at");
+
+    let bdd: Bdd = parse::parse_var_used_at(&count, &all_facts, &mp, &variable_set);
+    dump_bdd(bddvar_count, bdd, "var_used_at");
 }
 
-fn log2(mut x: usize) -> usize {
-    let mut res = 0;
-    while ((x & 1) == 0) {
-        res += 1;
-        x >>= 1;
+fn dump_bdd(bddvar_count: usize, bdd: Bdd, name: &str) -> std::io::Result<()> {
+    std::fs::create_dir("pa.joeq");
+    let mut path: String = "pa.joeq/".to_owned();
+    path += name;
+    path += ".bdd";
+    let mut file = File::create(&path)?;
+    // dbg!("{:?}{:?}",name,&bdd);
+    if (bdd.size() == 1) {
+        if bdd.0[0].low_link.0 == 0 {
+            // always false
+            file.write("0 0 0".as_bytes())?;
+        } else {
+            // always true
+            file.write("0 0 1".as_bytes())?;
+        }
+        return Ok(());
     }
-    res
+    // no 0 1
+    file.write((bdd.size() - 2).to_string().as_bytes())?;
+    file.write(" ".as_bytes())?;
+    file.write(bddvar_count.to_string().as_bytes())?;
+    file.write("\n".as_bytes())?;
+    for i in 0..bddvar_count {
+        file.write(i.to_string().as_bytes())?;
+        file.write(" ".as_bytes())?;
+    }
+    file.write("\n".as_bytes())?;
+    for (i, bddnode) in bdd.nodes().enumerate().skip(2) {
+        file.write(i.to_string().as_bytes())?;
+        file.write(" ".as_bytes())?;
+        file.write(bddnode.var.0.to_string().as_bytes())?;
+        file.write(" ".as_bytes())?;
+        file.write(bddnode.low_link.0.to_string().as_bytes())?;
+        file.write(" ".as_bytes())?;
+        file.write(bddnode.high_link.0.to_string().as_bytes())?;
+        file.write("\n".as_bytes())?;
+    }
+    Ok(())
 }
 
 // dump .map file
@@ -294,15 +379,24 @@ fn dump_map<T: Debug>(name: &str, mp: &HashMap<T, usize>) -> std::io::Result<()>
     for (k, v) in mp {
         vec[v.clone()] = format!("{:?}", k);
     }
-    let mut path:String="pa.joeq/".to_owned();
-    path+=name;
-    path+=".map";
+    let mut path: String = "pa.joeq/".to_owned();
+    path += name;
+    path += ".map";
     let mut file = File::create(&path)?;
     for s in vec {
         file.write(s.as_bytes())?;
         file.write("\n".as_bytes())?;
     }
     Ok(())
+}
+
+fn log2(mut x: usize) -> usize {
+    let mut res = 0;
+    while ((x & 1) == 0) {
+        res += 1;
+        x >>= 1;
+    }
+    res
 }
 
 #[test]
