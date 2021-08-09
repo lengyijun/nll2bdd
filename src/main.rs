@@ -402,7 +402,7 @@ fn dump_map<T: From<usize> + Into<usize> + Copy>(
 
     let mut vec = vec![""; var2bdd.len()];
     for (k, v) in var2bdd {
-        vec[v.clone()] = interner.untern(*k);
+        vec[*v] = interner.untern(*k);
     }
     for s in vec {
         file.write_all(s.as_bytes())?;

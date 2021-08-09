@@ -11,30 +11,28 @@ pub fn parse_cfg_edge<T: FactTypes>(
     var2bdd: &Var2Bdd,
     bdd_variable_set: &BddVariableSet,
 ) -> Bdd {
-    let mut vv: Vec<Bdd> = vec![];
-    let mut v: Vec<Bdd> = vec![];
+    let mut res = bdd_variable_set.mk_false();
     for (p0, p1) in &all_facts.cfg_edge {
-        v.clear();
+        let mut temp = bdd_variable_set.mk_true();
         let x: usize = atom2usize.point[p0];
         for (n, b) in var2bdd.point0.iter().enumerate() {
             if (x & (1 << n)) > 0 {
-                v.push(b.clone());
+                temp = temp.and(b);
             } else {
-                v.push(b.not());
+                temp = temp.and(&b.not());
             }
         }
         let x: usize = atom2usize.point[p1];
         for (n, b) in var2bdd.point1.iter().enumerate() {
             if (x & (1 << n)) > 0 {
-                v.push(b.clone());
+                temp = temp.and(b);
             } else {
-                v.push(b.not());
+                temp = temp.and(&b.not());
             }
         }
-        let b = v.iter().fold(bdd_variable_set.mk_true(), |a, b| a.and(b));
-        vv.push(b);
+        res = res.or(&temp);
     }
-    vv.iter().fold(bdd_variable_set.mk_false(), |a, b| a.or(b))
+    res
 }
 
 // child_path(child, parent)
@@ -44,30 +42,28 @@ pub fn parse_child_path<T: FactTypes>(
     var2bdd: &Var2Bdd,
     bdd_variable_set: &BddVariableSet,
 ) -> Bdd {
-    let mut vv: Vec<Bdd> = vec![];
-    let mut v: Vec<Bdd> = vec![];
+    let mut res = bdd_variable_set.mk_false();
     for (p0, p1) in &all_facts.child_path {
-        v.clear();
+        let mut temp = bdd_variable_set.mk_true();
         let x: usize = atom2usize.path[p0];
         for (n, b) in var2bdd.path0.iter().enumerate() {
             if (x & (1 << n)) > 0 {
-                v.push(b.clone());
+                temp = temp.and(b);
             } else {
-                v.push(b.not());
+                temp = temp.and(&b.not());
             }
         }
         let x: usize = atom2usize.path[p1];
         for (n, b) in var2bdd.path1.iter().enumerate() {
             if (x & (1 << n)) > 0 {
-                v.push(b.clone());
+                temp = temp.and(b);
             } else {
-                v.push(b.not());
+                temp = temp.and(&b.not());
             }
         }
-        let b = v.iter().fold(bdd_variable_set.mk_true(), |a, b| a.and(b));
-        vv.push(b);
+        res = res.or(&temp);
     }
-    vv.iter().fold(bdd_variable_set.mk_false(), |a, b| a.or(b))
+    res
 }
 
 // drop_of_var_derefs_origin(var, origin)
@@ -77,30 +73,28 @@ pub fn parse_drop_of_var_derefs_origin<T: FactTypes>(
     var2bdd: &Var2Bdd,
     bdd_variable_set: &BddVariableSet,
 ) -> Bdd {
-    let mut vv: Vec<Bdd> = vec![];
-    let mut v: Vec<Bdd> = vec![];
+    let mut res = bdd_variable_set.mk_false();
     for (variable, o) in &all_facts.drop_of_var_derefs_origin {
-        v.clear();
+        let mut temp = bdd_variable_set.mk_true();
         let x: usize = atom2usize.variable[variable];
         for (n, b) in var2bdd.variable.iter().enumerate() {
             if (x & (1 << n)) > 0 {
-                v.push(b.clone());
+                temp = temp.and(b);
             } else {
-                v.push(b.not());
+                temp = temp.and(&b.not());
             }
         }
         let x: usize = atom2usize.origin[o];
         for (n, b) in var2bdd.origin0.iter().enumerate() {
             if (x & (1 << n)) > 0 {
-                v.push(b.clone());
+                temp = temp.and(b);
             } else {
-                v.push(b.not());
+                temp = temp.and(&b.not());
             }
         }
-        let b = v.iter().fold(bdd_variable_set.mk_true(), |a, b| a.and(b));
-        vv.push(b);
+        res = res.or(&temp);
     }
-    vv.iter().fold(bdd_variable_set.mk_false(), |a, b| a.or(b))
+    res
 }
 
 // use_of_var_derefs_origin(variable, origin)
@@ -110,30 +104,28 @@ pub fn parse_use_of_var_derefs_origin<T: FactTypes>(
     var2bdd: &Var2Bdd,
     bdd_variable_set: &BddVariableSet,
 ) -> Bdd {
-    let mut vv: Vec<Bdd> = vec![];
-    let mut v: Vec<Bdd> = vec![];
+    let mut res = bdd_variable_set.mk_false();
     for (variable, o) in &all_facts.use_of_var_derefs_origin {
-        v.clear();
+        let mut temp = bdd_variable_set.mk_true();
         let x: usize = atom2usize.variable[variable];
         for (n, b) in var2bdd.variable.iter().enumerate() {
             if (x & (1 << n)) > 0 {
-                v.push(b.clone());
+                temp = temp.and(b);
             } else {
-                v.push(b.not());
+                temp = temp.and(&b.not());
             }
         }
         let x: usize = atom2usize.origin[o];
         for (n, b) in var2bdd.origin0.iter().enumerate() {
             if (x & (1 << n)) > 0 {
-                v.push(b.clone());
+                temp = temp.and(b);
             } else {
-                v.push(b.not());
+                temp = temp.and(&b.not());
             }
         }
-        let b = v.iter().fold(bdd_variable_set.mk_true(), |a, b| a.and(b));
-        vv.push(b);
+        res = res.or(&temp);
     }
-    vv.iter().fold(bdd_variable_set.mk_false(), |a, b| a.or(b))
+    res
 }
 
 // known_placeholder_subset(origin1,origin2)
@@ -143,30 +135,28 @@ pub fn parse_known_placeholder_subset<T: FactTypes>(
     var2bdd: &Var2Bdd,
     bdd_variable_set: &BddVariableSet,
 ) -> Bdd {
-    let mut vv: Vec<Bdd> = vec![];
-    let mut v: Vec<Bdd> = vec![];
+    let mut res = bdd_variable_set.mk_false();
     for (o0, o1) in &all_facts.known_placeholder_subset {
-        v.clear();
+        let mut temp = bdd_variable_set.mk_true();
         let x: usize = atom2usize.origin[o0];
         for (n, b) in var2bdd.origin0.iter().enumerate() {
             if (x & (1 << n)) > 0 {
-                v.push(b.clone());
+                temp = temp.and(b);
             } else {
-                v.push(b.not());
+                temp = temp.and(&b.not());
             }
         }
         let x: usize = atom2usize.origin[o1];
         for (n, b) in var2bdd.origin1.iter().enumerate() {
             if (x & (1 << n)) > 0 {
-                v.push(b.clone());
+                temp = temp.and(b);
             } else {
-                v.push(b.not());
+                temp = temp.and(&b.not());
             }
         }
-        let b = v.iter().fold(bdd_variable_set.mk_true(), |a, b| a.and(b));
-        vv.push(b);
+        res = res.or(&temp);
     }
-    vv.iter().fold(bdd_variable_set.mk_false(), |a, b| a.or(b))
+    res
 }
 
 // loan_invalidated_at: Vec<(T::Point, T::Loan)>,
@@ -176,30 +166,28 @@ pub fn parse_loan_invalidated_at<T: FactTypes>(
     var2bdd: &Var2Bdd,
     bdd_variable_set: &BddVariableSet,
 ) -> Bdd {
-    let mut vv: Vec<Bdd> = vec![];
-    let mut v: Vec<Bdd> = vec![];
+    let mut res = bdd_variable_set.mk_false();
     for (point, l) in &all_facts.loan_invalidated_at {
-        v.clear();
+        let mut temp = bdd_variable_set.mk_true();
         let x: usize = atom2usize.point[point];
         for (n, b) in var2bdd.point0.iter().enumerate() {
             if (x & (1 << n)) > 0 {
-                v.push(b.clone());
+                temp = temp.and(b);
             } else {
-                v.push(b.not());
+                temp = temp.and(&b.not());
             }
         }
         let x: usize = atom2usize.loan[l];
         for (n, b) in var2bdd.loan.iter().enumerate() {
             if (x & (1 << n)) > 0 {
-                v.push(b.clone());
+                temp = temp.and(b);
             } else {
-                v.push(b.not());
+                temp = temp.and(&b.not());
             }
         }
-        let b = v.iter().fold(bdd_variable_set.mk_true(), |a, b| a.and(b));
-        vv.push(b);
+        res = res.or(&temp);
     }
-    vv.iter().fold(bdd_variable_set.mk_false(), |a, b| a.or(b))
+    res
 }
 
 // loan_killed_at: Vec<(T::Loan, T::Point )>,
@@ -209,30 +197,28 @@ pub fn parse_loan_killed_at<T: FactTypes>(
     var2bdd: &Var2Bdd,
     bdd_variable_set: &BddVariableSet,
 ) -> Bdd {
-    let mut vv: Vec<Bdd> = vec![];
-    let mut v: Vec<Bdd> = vec![];
+    let mut res = bdd_variable_set.mk_false();
     for (l, point) in &all_facts.loan_killed_at {
-        v.clear();
+        let mut temp = bdd_variable_set.mk_true();
         let x: usize = atom2usize.point[point];
         for (n, b) in var2bdd.point0.iter().enumerate() {
             if (x & (1 << n)) > 0 {
-                v.push(b.clone());
+                temp = temp.and(b);
             } else {
-                v.push(b.not());
+                temp = temp.and(&b.not());
             }
         }
         let x: usize = atom2usize.loan[l];
         for (n, b) in var2bdd.loan.iter().enumerate() {
             if (x & (1 << n)) > 0 {
-                v.push(b.clone());
+                temp = temp.and(b);
             } else {
-                v.push(b.not());
+                temp = temp.and(&b.not());
             }
         }
-        let b = v.iter().fold(bdd_variable_set.mk_true(), |a, b| a.and(b));
-        vv.push(b);
+        res = res.or(&temp);
     }
-    vv.iter().fold(bdd_variable_set.mk_false(), |a, b| a.or(b))
+    res
 }
 
 pub fn parse_loan_issued_at<T: FactTypes>(
@@ -241,38 +227,36 @@ pub fn parse_loan_issued_at<T: FactTypes>(
     var2bdd: &Var2Bdd,
     bdd_variable_set: &BddVariableSet,
 ) -> Bdd {
-    let mut vv: Vec<Bdd> = vec![];
-    let mut v: Vec<Bdd> = vec![];
+    let mut res = bdd_variable_set.mk_false();
     for (o, l, point) in &all_facts.loan_issued_at {
-        v.clear();
+        let mut temp = bdd_variable_set.mk_true();
         let x: usize = atom2usize.origin[o];
         for (n, b) in var2bdd.origin0.iter().enumerate() {
             if (x & (1 << n)) > 0 {
-                v.push(b.clone());
+                temp = temp.and(b);
             } else {
-                v.push(b.not());
+                temp = temp.and(&b.not());
             }
         }
         let x: usize = atom2usize.loan[l];
         for (n, b) in var2bdd.loan.iter().enumerate() {
             if (x & (1 << n)) > 0 {
-                v.push(b.clone());
+                temp = temp.and(b);
             } else {
-                v.push(b.not());
+                temp = temp.and(&b.not());
             }
         }
         let x: usize = atom2usize.point[point];
         for (n, b) in var2bdd.point0.iter().enumerate() {
             if (x & (1 << n)) > 0 {
-                v.push(b.clone());
+                temp = temp.and(b);
             } else {
-                v.push(b.not());
+                temp = temp.and(&b.not());
             }
         }
-        let b = v.iter().fold(bdd_variable_set.mk_true(), |a, b| a.and(b));
-        vv.push(b);
+        res = res.or(&temp);
     }
-    vv.iter().fold(bdd_variable_set.mk_false(), |a, b| a.or(b))
+    res
 }
 
 // path_accessed_at_base: Vec<(T::Path, T::Point)>
@@ -282,30 +266,28 @@ pub fn parse_path_accessed_at_base<T: FactTypes>(
     var2bdd: &Var2Bdd,
     bdd_variable_set: &BddVariableSet,
 ) -> Bdd {
-    let mut vv: Vec<Bdd> = vec![];
-    let mut v: Vec<Bdd> = vec![];
+    let mut res = bdd_variable_set.mk_false();
     for (path, point) in &all_facts.path_accessed_at_base {
-        v.clear();
+        let mut temp = bdd_variable_set.mk_true();
         let x: usize = atom2usize.path[path];
         for (n, b) in var2bdd.path0.iter().enumerate() {
             if (x & (1 << n)) > 0 {
-                v.push(b.clone());
+                temp = temp.and(b);
             } else {
-                v.push(b.not());
+                temp = temp.and(&b.not());
             }
         }
         let x: usize = atom2usize.point[point];
         for (n, b) in var2bdd.point0.iter().enumerate() {
             if (x & (1 << n)) > 0 {
-                v.push(b.clone());
+                temp = temp.and(b);
             } else {
-                v.push(b.not());
+                temp = temp.and(&b.not());
             }
         }
-        let b = v.iter().fold(bdd_variable_set.mk_true(), |a, b| a.and(b));
-        vv.push(b);
+        res = res.or(&temp);
     }
-    vv.iter().fold(bdd_variable_set.mk_false(), |a, b| a.or(b))
+    res
 }
 
 // path_assigned_at_base: Vec<(T::Path, T::Point)>
@@ -315,30 +297,28 @@ pub fn parse_path_assigned_at_base<T: FactTypes>(
     var2bdd: &Var2Bdd,
     bdd_variable_set: &BddVariableSet,
 ) -> Bdd {
-    let mut vv: Vec<Bdd> = vec![];
-    let mut v: Vec<Bdd> = vec![];
+    let mut res = bdd_variable_set.mk_false();
     for (path, point) in &all_facts.path_assigned_at_base {
-        v.clear();
+        let mut temp = bdd_variable_set.mk_true();
         let x: usize = atom2usize.path[path];
         for (n, b) in var2bdd.path0.iter().enumerate() {
             if (x & (1 << n)) > 0 {
-                v.push(b.clone());
+                temp = temp.and(b);
             } else {
-                v.push(b.not());
+                temp = temp.and(&b.not());
             }
         }
         let x: usize = atom2usize.point[point];
         for (n, b) in var2bdd.point0.iter().enumerate() {
             if (x & (1 << n)) > 0 {
-                v.push(b.clone());
+                temp = temp.and(b);
             } else {
-                v.push(b.not());
+                temp = temp.and(&b.not());
             }
         }
-        let b = v.iter().fold(bdd_variable_set.mk_true(), |a, b| a.and(b));
-        vv.push(b);
+        res = res.or(&temp);
     }
-    vv.iter().fold(bdd_variable_set.mk_false(), |a, b| a.or(b))
+    res
 }
 
 // path_moved_at_base: Vec<(T::Path, T::Point)>
@@ -348,30 +328,28 @@ pub fn parse_path_moved_at_base<T: FactTypes>(
     var2bdd: &Var2Bdd,
     bdd_variable_set: &BddVariableSet,
 ) -> Bdd {
-    let mut vv: Vec<Bdd> = vec![];
-    let mut v: Vec<Bdd> = vec![];
+    let mut res = bdd_variable_set.mk_false();
     for (path, point) in &all_facts.path_moved_at_base {
-        v.clear();
+        let mut temp = bdd_variable_set.mk_true();
         let x: usize = atom2usize.path[path];
         for (n, b) in var2bdd.path0.iter().enumerate() {
             if (x & (1 << n)) > 0 {
-                v.push(b.clone());
+                temp = temp.and(b);
             } else {
-                v.push(b.not());
+                temp = temp.and(&b.not());
             }
         }
         let x: usize = atom2usize.point[point];
         for (n, b) in var2bdd.point0.iter().enumerate() {
             if (x & (1 << n)) > 0 {
-                v.push(b.clone());
+                temp = temp.and(b);
             } else {
-                v.push(b.not());
+                temp = temp.and(&b.not());
             }
         }
-        let b = v.iter().fold(bdd_variable_set.mk_true(), |a, b| a.and(b));
-        vv.push(b);
+        res = res.or(&temp);
     }
-    vv.iter().fold(bdd_variable_set.mk_false(), |a, b| a.or(b))
+    res
 }
 
 // path_is_var: Vec<(T::Path, T::Variable)>
@@ -381,30 +359,28 @@ pub fn parse_path_is_var<T: FactTypes>(
     var2bdd: &Var2Bdd,
     bdd_variable_set: &BddVariableSet,
 ) -> Bdd {
-    let mut vv: Vec<Bdd> = vec![];
-    let mut v: Vec<Bdd> = vec![];
+    let mut res = bdd_variable_set.mk_false();
     for (path, variable) in &all_facts.path_is_var {
-        v.clear();
+        let mut temp = bdd_variable_set.mk_true();
         let x: usize = atom2usize.path[path];
         for (n, b) in var2bdd.path0.iter().enumerate() {
             if (x & (1 << n)) > 0 {
-                v.push(b.clone());
+                temp = temp.and(b);
             } else {
-                v.push(b.not());
+                temp = temp.and(&b.not());
             }
         }
         let x: usize = atom2usize.variable[variable];
         for (n, b) in var2bdd.variable.iter().enumerate() {
             if (x & (1 << n)) > 0 {
-                v.push(b.clone());
+                temp = temp.and(b);
             } else {
-                v.push(b.not());
+                temp = temp.and(&b.not());
             }
         }
-        let b = v.iter().fold(bdd_variable_set.mk_true(), |a, b| a.and(b));
-        vv.push(b);
+        res = res.or(&temp);
     }
-    vv.iter().fold(bdd_variable_set.mk_false(), |a, b| a.or(b))
+    res
 }
 
 // placeholder: Vec<(T::Origin, T::Loan)>,
@@ -414,30 +390,28 @@ pub fn parse_placeholder<T: FactTypes>(
     var2bdd: &Var2Bdd,
     bdd_variable_set: &BddVariableSet,
 ) -> Bdd {
-    let mut vv: Vec<Bdd> = vec![];
-    let mut v: Vec<Bdd> = vec![];
+    let mut res = bdd_variable_set.mk_false();
     for (o, l) in &all_facts.placeholder {
-        v.clear();
+        let mut temp = bdd_variable_set.mk_true();
         let x: usize = atom2usize.origin[o];
         for (n, b) in var2bdd.origin0.iter().enumerate() {
             if (x & (1 << n)) > 0 {
-                v.push(b.clone());
+                temp = temp.and(b);
             } else {
-                v.push(b.not());
+                temp = temp.and(&b.not());
             }
         }
         let x: usize = atom2usize.loan[l];
         for (n, b) in var2bdd.loan.iter().enumerate() {
             if (x & (1 << n)) > 0 {
-                v.push(b.clone());
+                temp = temp.and(b);
             } else {
-                v.push(b.not());
+                temp = temp.and(&b.not());
             }
         }
-        let b = v.iter().fold(bdd_variable_set.mk_true(), |a, b| a.and(b));
-        vv.push(b);
+        res = res.or(&temp);
     }
-    vv.iter().fold(bdd_variable_set.mk_false(), |a, b| a.or(b))
+    res
 }
 
 // subset_base: Vec<(T::Origin, T::Origin, T::Point)>
@@ -447,38 +421,36 @@ pub fn parse_subset_base<T: FactTypes>(
     var2bdd: &Var2Bdd,
     bdd_variable_set: &BddVariableSet,
 ) -> Bdd {
-    let mut vv: Vec<Bdd> = vec![];
-    let mut v: Vec<Bdd> = vec![];
+    let mut res = bdd_variable_set.mk_false();
     for (o0, o1, point) in &all_facts.subset_base {
-        v.clear();
+        let mut temp = bdd_variable_set.mk_true();
         let x: usize = atom2usize.origin[o0];
         for (n, b) in var2bdd.origin0.iter().enumerate() {
             if (x & (1 << n)) > 0 {
-                v.push(b.clone());
+                temp = temp.and(b);
             } else {
-                v.push(b.not());
+                temp = temp.and(&b.not());
             }
         }
         let x: usize = atom2usize.origin[o1];
         for (n, b) in var2bdd.origin1.iter().enumerate() {
             if (x & (1 << n)) > 0 {
-                v.push(b.clone());
+                temp = temp.and(b);
             } else {
-                v.push(b.not());
+                temp = temp.and(&b.not());
             }
         }
         let x: usize = atom2usize.point[point];
         for (n, b) in var2bdd.point0.iter().enumerate() {
             if (x & (1 << n)) > 0 {
-                v.push(b.clone());
+                temp = temp.and(b);
             } else {
-                v.push(b.not());
+                temp = temp.and(&b.not());
             }
         }
-        let b = v.iter().fold(bdd_variable_set.mk_true(), |a, b| a.and(b));
-        vv.push(b);
+        res = res.or(&temp);
     }
-    vv.iter().fold(bdd_variable_set.mk_false(), |a, b| a.or(b))
+    res
 }
 
 // var_defined_at: Vec<(T::Variable, T::Point)>
@@ -488,30 +460,28 @@ pub fn parse_var_defined_at<T: FactTypes>(
     var2bdd: &Var2Bdd,
     bdd_variable_set: &BddVariableSet,
 ) -> Bdd {
-    let mut vv: Vec<Bdd> = vec![];
-    let mut v: Vec<Bdd> = vec![];
+    let mut res = bdd_variable_set.mk_false();
     for (variable, point) in &all_facts.var_defined_at {
-        v.clear();
+        let mut temp = bdd_variable_set.mk_true();
         let x: usize = atom2usize.variable[variable];
         for (n, b) in var2bdd.variable.iter().enumerate() {
             if (x & (1 << n)) > 0 {
-                v.push(b.clone());
+                temp = temp.and(b);
             } else {
-                v.push(b.not());
+                temp = temp.and(&b.not());
             }
         }
         let x: usize = atom2usize.point[point];
         for (n, b) in var2bdd.point0.iter().enumerate() {
             if (x & (1 << n)) > 0 {
-                v.push(b.clone());
+                temp = temp.and(b);
             } else {
-                v.push(b.not());
+                temp = temp.and(&b.not());
             }
         }
-        let b = v.iter().fold(bdd_variable_set.mk_true(), |a, b| a.and(b));
-        vv.push(b);
+        res = res.or(&temp);
     }
-    vv.iter().fold(bdd_variable_set.mk_false(), |a, b| a.or(b))
+    res
 }
 
 pub fn parse_var_dropped_at<T: FactTypes>(
@@ -520,30 +490,28 @@ pub fn parse_var_dropped_at<T: FactTypes>(
     var2bdd: &Var2Bdd,
     bdd_variable_set: &BddVariableSet,
 ) -> Bdd {
-    let mut vv: Vec<Bdd> = vec![];
-    let mut v: Vec<Bdd> = vec![];
+    let mut res = bdd_variable_set.mk_false();
     for (variable, point) in &all_facts.var_dropped_at {
-        v.clear();
+        let mut temp = bdd_variable_set.mk_true();
         let x: usize = atom2usize.variable[variable];
         for (n, b) in var2bdd.variable.iter().enumerate() {
             if (x & (1 << n)) > 0 {
-                v.push(b.clone());
+                temp = temp.and(b);
             } else {
-                v.push(b.not());
+                temp = temp.and(&b.not());
             }
         }
         let x: usize = atom2usize.point[point];
         for (n, b) in var2bdd.point0.iter().enumerate() {
             if (x & (1 << n)) > 0 {
-                v.push(b.clone());
+                temp = temp.and(b);
             } else {
-                v.push(b.not());
+                temp = temp.and(&b.not());
             }
         }
-        let b = v.iter().fold(bdd_variable_set.mk_true(), |a, b| a.and(b));
-        vv.push(b);
+        res = res.or(&temp);
     }
-    vv.iter().fold(bdd_variable_set.mk_false(), |a, b| a.or(b))
+    res
 }
 
 pub fn parse_var_used_at<T: FactTypes>(
@@ -552,28 +520,26 @@ pub fn parse_var_used_at<T: FactTypes>(
     var2bdd: &Var2Bdd,
     bdd_variable_set: &BddVariableSet,
 ) -> Bdd {
-    let mut vv: Vec<Bdd> = vec![];
-    let mut v: Vec<Bdd> = vec![];
+    let mut res = bdd_variable_set.mk_false();
     for (variable, point) in &all_facts.var_used_at {
-        v.clear();
+        let mut temp = bdd_variable_set.mk_true();
         let x: usize = atom2usize.variable[variable];
         for (n, b) in var2bdd.variable.iter().enumerate() {
             if (x & (1 << n)) > 0 {
-                v.push(b.clone());
+                temp = temp.and(b);
             } else {
-                v.push(b.not());
+                temp = temp.and(&b.not());
             }
         }
         let x: usize = atom2usize.point[point];
         for (n, b) in var2bdd.point0.iter().enumerate() {
             if (x & (1 << n)) > 0 {
-                v.push(b.clone());
+                temp = temp.and(b);
             } else {
-                v.push(b.not());
+                temp = temp.and(&b.not());
             }
         }
-        let b = v.iter().fold(bdd_variable_set.mk_true(), |a, b| a.and(b));
-        vv.push(b);
+        res = res.or(&temp);
     }
-    vv.iter().fold(bdd_variable_set.mk_false(), |a, b| a.or(b))
+    res
 }
