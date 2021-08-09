@@ -21,7 +21,7 @@ mod tab_delim;
 // path1,path2
 // TODO change order to speed up
 static V: [&'static str; 8] = [
-    "origin1", "origin2", "loan", "variable", "path1", "path2", "point1", "point2",
+    "origin0", "origin1", "loan", "variable", "path0", "path1", "point0", "point1",
 ];
 
 // TODO rename
@@ -210,7 +210,7 @@ fn main() {
 
     for s in V {
         match s {
-            "origin1" => {
+            "origin0" => {
                 let mut v = vec![];
                 for _i in 0..log2(count.origin.len().next_power_of_two()) {
                     v.push(variable_set.mk_var_by_name(&("x_".to_owned() + &index.to_string())));
@@ -218,7 +218,7 @@ fn main() {
                 }
                 mp.insert(s, v);
             }
-            "origin2" => {
+            "origin1" => {
                 let mut v = vec![];
                 for _i in 0..log2(count.origin.len().next_power_of_two()) {
                     v.push(variable_set.mk_var_by_name(&("x_".to_owned() + &index.to_string())));
@@ -242,6 +242,14 @@ fn main() {
                 }
                 mp.insert(s, v);
             }
+            "path0" => {
+                let mut v = vec![];
+                for _i in 0..log2(count.path.len().next_power_of_two()) {
+                    v.push(variable_set.mk_var_by_name(&("x_".to_owned() + &index.to_string())));
+                    index += 1;
+                }
+                mp.insert(s, v);
+            }
             "path1" => {
                 let mut v = vec![];
                 for _i in 0..log2(count.path.len().next_power_of_two()) {
@@ -250,15 +258,7 @@ fn main() {
                 }
                 mp.insert(s, v);
             }
-            "path2" => {
-                let mut v = vec![];
-                for _i in 0..log2(count.path.len().next_power_of_two()) {
-                    v.push(variable_set.mk_var_by_name(&("x_".to_owned() + &index.to_string())));
-                    index += 1;
-                }
-                mp.insert(s, v);
-            }
-            "point1" => {
+            "point0" => {
                 let mut v = vec![];
                 for _i in 0..log2(count.point.len().next_power_of_two()) {
                     v.push(variable_set.mk_var_by_name(&("x_".to_owned() + &index.to_string())));
@@ -266,7 +266,7 @@ fn main() {
                 }
                 mp.insert(s, v);
             }
-            "point2" => {
+            "point1" => {
                 let mut v = vec![];
                 for _i in 0..log2(count.point.len().next_power_of_two()) {
                     v.push(variable_set.mk_var_by_name(&("x_".to_owned() + &index.to_string())));

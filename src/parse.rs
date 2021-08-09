@@ -17,7 +17,7 @@ pub fn parse_cfg_edge<T: FactTypes>(
     for (p1, p2) in &all_facts.cfg_edge {
         v.clear();
         let x: usize = count.point[p1];
-        for (n, b) in mp["point1"].iter().enumerate() {
+        for (n, b) in mp["point0"].iter().enumerate() {
             if (x & (1 << n)) > 0 {
                 v.push(b.clone());
             } else {
@@ -25,7 +25,7 @@ pub fn parse_cfg_edge<T: FactTypes>(
             }
         }
         let x: usize = count.point[p2];
-        for (n, b) in mp["point2"].iter().enumerate() {
+        for (n, b) in mp["point1"].iter().enumerate() {
             if (x & (1 << n)) > 0 {
                 v.push(b.clone());
             } else {
@@ -50,7 +50,7 @@ pub fn parse_child_path<T: FactTypes>(
     for (p1, p2) in &all_facts.child_path {
         v.clear();
         let x: usize = count.path[p1];
-        for (n, b) in mp["path1"].iter().enumerate() {
+        for (n, b) in mp["path0"].iter().enumerate() {
             if (x & (1 << n)) > 0 {
                 v.push(b.clone());
             } else {
@@ -58,7 +58,7 @@ pub fn parse_child_path<T: FactTypes>(
             }
         }
         let x: usize = count.path[p2];
-        for (n, b) in mp["path2"].iter().enumerate() {
+        for (n, b) in mp["path1"].iter().enumerate() {
             if (x & (1 << n)) > 0 {
                 v.push(b.clone());
             } else {
@@ -91,7 +91,7 @@ pub fn parse_drop_of_var_derefs_origin<T: FactTypes>(
             }
         }
         let x: usize = count.origin[o];
-        for (n, b) in mp["origin1"].iter().enumerate() {
+        for (n, b) in mp["origin0"].iter().enumerate() {
             if (x & (1 << n)) > 0 {
                 v.push(b.clone());
             } else {
@@ -116,7 +116,7 @@ pub fn parse_use_of_var_derefs_origin<T: FactTypes>(
     for (variable, o) in &all_facts.use_of_var_derefs_origin {
         v.clear();
         let x: usize = count.variable[variable];
-        for (n, b) in mp["var"].iter().enumerate() {
+        for (n, b) in mp["variable"].iter().enumerate() {
             if (x & (1 << n)) > 0 {
                 v.push(b.clone());
             } else {
@@ -124,7 +124,7 @@ pub fn parse_use_of_var_derefs_origin<T: FactTypes>(
             }
         }
         let x: usize = count.origin[o];
-        for (n, b) in mp["origin1"].iter().enumerate() {
+        for (n, b) in mp["origin0"].iter().enumerate() {
             if (x & (1 << n)) > 0 {
                 v.push(b.clone());
             } else {
@@ -149,7 +149,7 @@ pub fn parse_known_placeholder_subset<T: FactTypes>(
     for (o1, o2) in &all_facts.known_placeholder_subset {
         v.clear();
         let x: usize = count.origin[o1];
-        for (n, b) in mp["origin1"].iter().enumerate() {
+        for (n, b) in mp["origin0"].iter().enumerate() {
             if (x & (1 << n)) > 0 {
                 v.push(b.clone());
             } else {
@@ -157,7 +157,7 @@ pub fn parse_known_placeholder_subset<T: FactTypes>(
             }
         }
         let x: usize = count.origin[o2];
-        for (n, b) in mp["origin2"].iter().enumerate() {
+        for (n, b) in mp["origin1"].iter().enumerate() {
             if (x & (1 << n)) > 0 {
                 v.push(b.clone());
             } else {
@@ -182,7 +182,7 @@ pub fn parse_loan_invalidated_at<T: FactTypes>(
     for (point, l) in &all_facts.loan_invalidated_at {
         v.clear();
         let x: usize = count.point[point];
-        for (n, b) in mp["point1"].iter().enumerate() {
+        for (n, b) in mp["point0"].iter().enumerate() {
             if (x & (1 << n)) > 0 {
                 v.push(b.clone());
             } else {
@@ -215,7 +215,7 @@ pub fn parse_loan_killed_at<T: FactTypes>(
     for (l, point) in &all_facts.loan_killed_at {
         v.clear();
         let x: usize = count.point[point];
-        for (n, b) in mp["point1"].iter().enumerate() {
+        for (n, b) in mp["point0"].iter().enumerate() {
             if (x & (1 << n)) > 0 {
                 v.push(b.clone());
             } else {
@@ -247,7 +247,7 @@ pub fn parse_loan_issued_at<T: FactTypes>(
     for (o, l, point) in &all_facts.loan_issued_at {
         v.clear();
         let x: usize = count.origin[o];
-        for (n, b) in mp["origin1"].iter().enumerate() {
+        for (n, b) in mp["origin0"].iter().enumerate() {
             if (x & (1 << n)) > 0 {
                 v.push(b.clone());
             } else {
@@ -263,7 +263,7 @@ pub fn parse_loan_issued_at<T: FactTypes>(
             }
         }
         let x: usize = count.point[point];
-        for (n, b) in mp["point1"].iter().enumerate() {
+        for (n, b) in mp["point0"].iter().enumerate() {
             if (x & (1 << n)) > 0 {
                 v.push(b.clone());
             } else {
@@ -288,7 +288,7 @@ pub fn parse_path_accessed_at_base<T: FactTypes>(
     for (path, point) in &all_facts.path_accessed_at_base {
         v.clear();
         let x: usize = count.path[path];
-        for (n, b) in mp["path1"].iter().enumerate() {
+        for (n, b) in mp["path0"].iter().enumerate() {
             if (x & (1 << n)) > 0 {
                 v.push(b.clone());
             } else {
@@ -296,7 +296,7 @@ pub fn parse_path_accessed_at_base<T: FactTypes>(
             }
         }
         let x: usize = count.point[point];
-        for (n, b) in mp["point1"].iter().enumerate() {
+        for (n, b) in mp["point0"].iter().enumerate() {
             if (x & (1 << n)) > 0 {
                 v.push(b.clone());
             } else {
@@ -321,7 +321,7 @@ pub fn parse_path_assigned_at_base<T: FactTypes>(
     for (path, point) in &all_facts.path_assigned_at_base {
         v.clear();
         let x: usize = count.path[path];
-        for (n, b) in mp["path1"].iter().enumerate() {
+        for (n, b) in mp["path0"].iter().enumerate() {
             if (x & (1 << n)) > 0 {
                 v.push(b.clone());
             } else {
@@ -329,7 +329,7 @@ pub fn parse_path_assigned_at_base<T: FactTypes>(
             }
         }
         let x: usize = count.point[point];
-        for (n, b) in mp["point1"].iter().enumerate() {
+        for (n, b) in mp["point0"].iter().enumerate() {
             if (x & (1 << n)) > 0 {
                 v.push(b.clone());
             } else {
@@ -354,7 +354,7 @@ pub fn parse_path_moved_at_base<T: FactTypes>(
     for (path, point) in &all_facts.path_moved_at_base {
         v.clear();
         let x: usize = count.path[path];
-        for (n, b) in mp["path1"].iter().enumerate() {
+        for (n, b) in mp["path0"].iter().enumerate() {
             if (x & (1 << n)) > 0 {
                 v.push(b.clone());
             } else {
@@ -362,7 +362,7 @@ pub fn parse_path_moved_at_base<T: FactTypes>(
             }
         }
         let x: usize = count.point[point];
-        for (n, b) in mp["point1"].iter().enumerate() {
+        for (n, b) in mp["point0"].iter().enumerate() {
             if (x & (1 << n)) > 0 {
                 v.push(b.clone());
             } else {
@@ -387,7 +387,7 @@ pub fn parse_path_is_var<T: FactTypes>(
     for (path, variable) in &all_facts.path_is_var {
         v.clear();
         let x: usize = count.path[path];
-        for (n, b) in mp["path1"].iter().enumerate() {
+        for (n, b) in mp["path0"].iter().enumerate() {
             if (x & (1 << n)) > 0 {
                 v.push(b.clone());
             } else {
@@ -420,7 +420,7 @@ pub fn parse_placeholder<T: FactTypes>(
     for (o, l) in &all_facts.placeholder {
         v.clear();
         let x: usize = count.origin[o];
-        for (n, b) in mp["origin1"].iter().enumerate() {
+        for (n, b) in mp["origin0"].iter().enumerate() {
             if (x & (1 << n)) > 0 {
                 v.push(b.clone());
             } else {
@@ -453,7 +453,7 @@ pub fn parse_subset_base<T: FactTypes>(
     for (o1, o2, point) in &all_facts.subset_base {
         v.clear();
         let x: usize = count.origin[o1];
-        for (n, b) in mp["origin1"].iter().enumerate() {
+        for (n, b) in mp["origin0"].iter().enumerate() {
             if (x & (1 << n)) > 0 {
                 v.push(b.clone());
             } else {
@@ -461,7 +461,7 @@ pub fn parse_subset_base<T: FactTypes>(
             }
         }
         let x: usize = count.origin[o2];
-        for (n, b) in mp["origin2"].iter().enumerate() {
+        for (n, b) in mp["origin1"].iter().enumerate() {
             if (x & (1 << n)) > 0 {
                 v.push(b.clone());
             } else {
@@ -469,7 +469,7 @@ pub fn parse_subset_base<T: FactTypes>(
             }
         }
         let x: usize = count.point[point];
-        for (n, b) in mp["point1"].iter().enumerate() {
+        for (n, b) in mp["point0"].iter().enumerate() {
             if (x & (1 << n)) > 0 {
                 v.push(b.clone());
             } else {
@@ -502,7 +502,7 @@ pub fn parse_var_defined_at<T: FactTypes>(
             }
         }
         let x: usize = count.point[point];
-        for (n, b) in mp["point1"].iter().enumerate() {
+        for (n, b) in mp["point0"].iter().enumerate() {
             if (x & (1 << n)) > 0 {
                 v.push(b.clone());
             } else {
@@ -534,7 +534,7 @@ pub fn parse_var_dropped_at<T: FactTypes>(
             }
         }
         let x: usize = count.point[point];
-        for (n, b) in mp["point1"].iter().enumerate() {
+        for (n, b) in mp["point0"].iter().enumerate() {
             if (x & (1 << n)) > 0 {
                 v.push(b.clone());
             } else {
@@ -566,7 +566,7 @@ pub fn parse_var_used_at<T: FactTypes>(
             }
         }
         let x: usize = count.point[point];
-        for (n, b) in mp["point1"].iter().enumerate() {
+        for (n, b) in mp["point0"].iter().enumerate() {
             if (x & (1 << n)) > 0 {
                 v.push(b.clone());
             } else {
