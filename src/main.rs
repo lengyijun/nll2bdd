@@ -40,7 +40,8 @@ pub struct Var2Bdd {
 }
 
 fn main() {
-    let facts_dir = "/home/lyj/polonius/inputs/smoke-test/nll-facts/basic_move_error";
+    // let facts_dir = "/home/lyj/polonius/inputs/smoke-test/nll-facts/basic_move_error";
+    let facts_dir = std::env::args().nth(1).unwrap();
     let tables = &mut intern::InternerTables::new();
     let all_facts = tab_delim::load_tab_delimited_facts(tables, &Path::new(&facts_dir)).unwrap();
 
