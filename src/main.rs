@@ -53,170 +53,170 @@ fn main() {
     };
     for (o, l, p) in &all_facts.loan_issued_at {
         if !atom2usize.origin.contains_key(o) {
-            atom2usize.origin.insert(o.clone(), atom2usize.origin.len());
+            atom2usize.origin.insert(*o, atom2usize.origin.len());
         }
         if !atom2usize.loan.contains_key(l) {
-            atom2usize.loan.insert(l.clone(), atom2usize.loan.len());
+            atom2usize.loan.insert(*l, atom2usize.loan.len());
         }
         if !atom2usize.point.contains_key(p) {
-            atom2usize.point.insert(p.clone(), atom2usize.point.len());
+            atom2usize.point.insert(*p, atom2usize.point.len());
         }
     }
     for (p1, p2) in &all_facts.cfg_edge {
         if !atom2usize.point.contains_key(p1) {
-            atom2usize.point.insert(p1.clone(), atom2usize.point.len());
+            atom2usize.point.insert(*p1, atom2usize.point.len());
         }
         if !atom2usize.point.contains_key(p2) {
-            atom2usize.point.insert(p2.clone(), atom2usize.point.len());
+            atom2usize.point.insert(*p2, atom2usize.point.len());
         }
     }
     for (l, p) in &all_facts.loan_killed_at {
         if !atom2usize.loan.contains_key(l) {
-            atom2usize.loan.insert(l.clone(), atom2usize.loan.len());
+            atom2usize.loan.insert(*l, atom2usize.loan.len());
         }
         if !atom2usize.point.contains_key(p) {
-            atom2usize.point.insert(p.clone(), atom2usize.point.len());
+            atom2usize.point.insert(*p, atom2usize.point.len());
         }
     }
     for (o1, o2, p) in &all_facts.subset_base {
         if !atom2usize.origin.contains_key(o1) {
             atom2usize
                 .origin
-                .insert(o1.clone(), atom2usize.origin.len());
+                .insert(*o1, atom2usize.origin.len());
         }
         if !atom2usize.origin.contains_key(o2) {
             atom2usize
                 .origin
-                .insert(o2.clone(), atom2usize.origin.len());
+                .insert(*o2, atom2usize.origin.len());
         }
         if !atom2usize.point.contains_key(p) {
-            atom2usize.point.insert(p.clone(), atom2usize.point.len());
+            atom2usize.point.insert(*p, atom2usize.point.len());
         }
     }
     for (p, l) in &all_facts.loan_invalidated_at {
         if !atom2usize.loan.contains_key(l) {
-            atom2usize.loan.insert(l.clone(), atom2usize.loan.len());
+            atom2usize.loan.insert(*l, atom2usize.loan.len());
         }
         if !atom2usize.point.contains_key(p) {
-            atom2usize.point.insert(p.clone(), atom2usize.point.len());
+            atom2usize.point.insert(*p, atom2usize.point.len());
         }
     }
     for (v, p) in &all_facts.var_used_at {
         if !atom2usize.variable.contains_key(v) {
             atom2usize
                 .variable
-                .insert(v.clone(), atom2usize.variable.len());
+                .insert(*v, atom2usize.variable.len());
         }
         if !atom2usize.point.contains_key(p) {
-            atom2usize.point.insert(p.clone(), atom2usize.point.len());
+            atom2usize.point.insert(*p, atom2usize.point.len());
         }
     }
     for (v, p) in &all_facts.var_defined_at {
         if !atom2usize.variable.contains_key(v) {
             atom2usize
                 .variable
-                .insert(v.clone(), atom2usize.variable.len());
+                .insert(*v, atom2usize.variable.len());
         }
         if !atom2usize.point.contains_key(p) {
-            atom2usize.point.insert(p.clone(), atom2usize.point.len());
+            atom2usize.point.insert(*p, atom2usize.point.len());
         }
     }
     for (v, p) in &all_facts.var_dropped_at {
         if !atom2usize.variable.contains_key(v) {
             atom2usize
                 .variable
-                .insert(v.clone(), atom2usize.variable.len());
+                .insert(*v, atom2usize.variable.len());
         }
         if !atom2usize.point.contains_key(p) {
-            atom2usize.point.insert(p.clone(), atom2usize.point.len());
+            atom2usize.point.insert(*p, atom2usize.point.len());
         }
     }
     for (v, o) in &all_facts.use_of_var_derefs_origin {
         if !atom2usize.variable.contains_key(v) {
             atom2usize
                 .variable
-                .insert(v.clone(), atom2usize.variable.len());
+                .insert(*v, atom2usize.variable.len());
         }
         if !atom2usize.origin.contains_key(o) {
-            atom2usize.origin.insert(o.clone(), atom2usize.origin.len());
+            atom2usize.origin.insert(*o, atom2usize.origin.len());
         }
     }
     for (v, o) in &all_facts.drop_of_var_derefs_origin {
         if !atom2usize.variable.contains_key(v) {
             atom2usize
                 .variable
-                .insert(v.clone(), atom2usize.variable.len());
+                .insert(*v, atom2usize.variable.len());
         }
         if !atom2usize.origin.contains_key(o) {
-            atom2usize.origin.insert(o.clone(), atom2usize.origin.len());
+            atom2usize.origin.insert(*o, atom2usize.origin.len());
         }
     }
     for (p1, p2) in &all_facts.child_path {
         if !atom2usize.path.contains_key(p1) {
-            atom2usize.path.insert(p1.clone(), atom2usize.path.len());
+            atom2usize.path.insert(*p1, atom2usize.path.len());
         }
         if !atom2usize.path.contains_key(p2) {
-            atom2usize.path.insert(p2.clone(), atom2usize.path.len());
+            atom2usize.path.insert(*p2, atom2usize.path.len());
         }
     }
     for (p, v) in &all_facts.path_is_var {
         if !atom2usize.path.contains_key(p) {
-            atom2usize.path.insert(p.clone(), atom2usize.path.len());
+            atom2usize.path.insert(*p, atom2usize.path.len());
         }
         if !atom2usize.variable.contains_key(v) {
             atom2usize
                 .variable
-                .insert(v.clone(), atom2usize.variable.len());
+                .insert(*v, atom2usize.variable.len());
         }
     }
     for (path, point) in &all_facts.path_assigned_at_base {
         if !atom2usize.path.contains_key(path) {
-            atom2usize.path.insert(path.clone(), atom2usize.path.len());
+            atom2usize.path.insert(*path, atom2usize.path.len());
         }
         if !atom2usize.point.contains_key(point) {
             atom2usize
                 .point
-                .insert(point.clone(), atom2usize.point.len());
+                .insert(*point, atom2usize.point.len());
         }
     }
     for (path, point) in &all_facts.path_moved_at_base {
         if !atom2usize.path.contains_key(path) {
-            atom2usize.path.insert(path.clone(), atom2usize.path.len());
+            atom2usize.path.insert(*path, atom2usize.path.len());
         }
         if !atom2usize.point.contains_key(point) {
             atom2usize
                 .point
-                .insert(point.clone(), atom2usize.point.len());
+                .insert(*point, atom2usize.point.len());
         }
     }
     for (path, point) in &all_facts.path_accessed_at_base {
         if !atom2usize.path.contains_key(path) {
-            atom2usize.path.insert(path.clone(), atom2usize.path.len());
+            atom2usize.path.insert(*path, atom2usize.path.len());
         }
         if !atom2usize.point.contains_key(point) {
             atom2usize
                 .point
-                .insert(point.clone(), atom2usize.point.len());
+                .insert(*point, atom2usize.point.len());
         }
     }
     for (o1, o2) in &all_facts.known_placeholder_subset {
         if !atom2usize.origin.contains_key(o1) {
             atom2usize
                 .origin
-                .insert(o1.clone(), atom2usize.origin.len());
+                .insert(*o1, atom2usize.origin.len());
         }
         if !atom2usize.origin.contains_key(o2) {
             atom2usize
                 .origin
-                .insert(o2.clone(), atom2usize.origin.len());
+                .insert(*o2, atom2usize.origin.len());
         }
     }
     for (o, l) in &all_facts.placeholder {
         if !atom2usize.origin.contains_key(o) {
-            atom2usize.origin.insert(o.clone(), atom2usize.origin.len());
+            atom2usize.origin.insert(*o, atom2usize.origin.len());
         }
         if !atom2usize.loan.contains_key(l) {
-            atom2usize.loan.insert(l.clone(), atom2usize.loan.len());
+            atom2usize.loan.insert(*l, atom2usize.loan.len());
         }
     }
 

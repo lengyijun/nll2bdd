@@ -1,0 +1,86 @@
+.basedir "pa.joeq"
+
+### Domains
+.include "fielddomains.pa"
+
+.bddvarorder ORIGIN0_ORIGIN1_LOAN0_VARIABLE0_PATH0_PATH1_POINT0_POINT1
+
+### Relations
+loan_issued_at (o:ORIGIN0, l:LOAN0, p:POINT0) input
+cfg_edge (p0:POINT0, p1:POINT1) input
+loan_killed_at (l:LOAN0, p0:POINT0) input
+subset_base (o0:ORIGIN0, o1:ORIGIN1, p0:POINT0) input
+loan_invalidated_at (p:POINT0, l:LOAN0) input
+var_used_at (v:VARIABLE0, p:POINT0) input
+var_defined_at (v:VARIABLE0, p:POINT0) input
+var_dropped_at (v:VARIABLE0, p:POINT0) input
+use_of_var_derefs_origin (v:VARIABLE0, o:ORIGIN0) input
+drop_of_var_derefs_origin (v:VARIABLE0, o:ORIGIN0) input
+child_path (path0:PATH0, path1:PATH1) input
+path_is_var (path0:PATH0, v:VARIABLE0) input
+path_assigned_at_base (path0:PATH0, point0:POINT0) input
+path_moved_at_base (path0:PATH0, point0:POINT0) input
+path_accessed_at_base (path0:PATH0, point0:POINT0) input
+known_placeholder_subset (o0:ORIGIN0, o1:ORIGIN1) input
+placeholder (o:ORIGIN0, l:LOAN0) input
+
+# initialization
+ancestor_path(p0:PATH0, p1:PATH1)
+path_moved_at(path:PATH0,point:POINT0)
+path_assigned_at(path:PATH0,point:POINT0)
+path_accessed_at(path:PATH0, point:POINT0)
+path_begins_with_var(path:PATH0, v:VARIABLE0)
+
+path_maybe_initialized_on_exit(path:PATH0, point:POINT0)
+path_maybe_uninitialized_on_exit(path:PATH0, point:POINT0)
+var_maybe_partly_initialized_on_exit(v: VARIABLE0, point:POINT0)  output
+move_error(path:PATH0, point:POINT0) output
+
+# liveness
+var_live_on_entry(var:VARIABLE0,point:POINT0)
+var_maybe_partly_initialized_on_entry(var:VARIABLE,point:POINT0)
+var_drop_live_on_entry(var:VARIABLE,point:POINT0)
+origin_live_on_entry(o:ORIGIN,point:POINT0) output
+
+## Rules
+### initialization
+ancestor_path(parent, child) :- child_path(child, parent).
+path_moved_at(path, point) :- path_moved_at_base(path, point).
+path_assigned_at(path, point) :- path_assigned_at_base(path, point).
+path_accessed_at(path, point) :- path_accessed_at_base(path, point).
+path_begins_with_var(path, var) :- path_is_var(path, var).
+
+ancestor_path(grandparent, child) :- ancestor_path(parent, child), child_path(parent, grandparent).
+
+path_moved_at(child, point) :- path_moved_at(parent, point), ancestor_path(parent, child).
+
+path_assigned_at(child, point) :- path_assigned_at(parent, point), ancestor_path(parent, child).
+
+path_accessed_at(child, point) :- path_accessed_at(parent, point), ancestor_path(parent, child).
+
+path_begins_with_var(child, var) :- path_begins_with_var(parent, var), ancestor_path(parent, child).
+
+path_maybe_initialized_on_exit(path, point) :- path_assigned_at(path, point).
+
+path_maybe_initialized_on_exit(path, point2) :- path_maybe_initialized_on_exit(path, point1), cfg_edge(point1, point2), !path_moved_at(path, point2).
+
+path_maybe_uninitialized_on_exit(path, point) :- path_moved_at(path, point).
+
+path_maybe_uninitialized_on_exit(path, point2) :- path_maybe_uninitialized_on_exit(path, point1), cfg_edge(point1, point2), !path_assigned_at(path, point2).
+
+move_error(path, targetnode) :- path_maybe_uninitialized_on_exit(path, sourcenode), cfg_edge(sourcenode, targetnode), path_accessed_at(path, targetnode).
+
+var_maybe_partly_initialized_on_exit(var, point) :- path_maybe_initialized_on_exit(path, point), path_begins_with_var(path, var).
+
+# liveness
+var_live_on_entry(var, point) :- var_used_at(var, point).
+var_live_on_entry(var, point1) :- var_live_on_entry(var, point2), cfg_edge(point1, point2), !var_defined_at(var, point1).
+
+var_maybe_partly_initialized_on_entry(var, point2) :- var_maybe_partly_initialized_on_exit(var, point1), cfg_edge(point1, point2).
+
+var_drop_live_on_entry(var, point) :- var_dropped_at(var, point), var_maybe_partly_initialized_on_entry(var, point).
+var_drop_live_on_entry(Var, SourceNode) :- var_drop_live_on_entry(Var, TargetNode), cfg_edge(SourceNode, TargetNode), !var_defined_at(Var, SourceNode), var_maybe_partly_initialized_on_exit(Var, SourceNode).
+
+origin_live_on_entry(origin, point) :- var_drop_live_on_entry(var, point), drop_of_var_derefs_origin(var, origin).
+origin_live_on_entry(origin, point) :- var_live_on_entry(var, point), use_of_var_derefs_origin(var, origin).
+
