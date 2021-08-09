@@ -28,6 +28,17 @@ pub struct Atom2Usize<T: FactTypes> {
     variable: HashMap<T::Variable, usize>,
 }
 
+pub struct Var2Bdd {
+    origin0: Vec<Bdd>,
+    origin1: Vec<Bdd>,
+    path0: Vec<Bdd>,
+    path1: Vec<Bdd>,
+    point0: Vec<Bdd>,
+    point1: Vec<Bdd>,
+    variable: Vec<Bdd>,
+    loan: Vec<Bdd>,
+}
+
 fn main() {
     let facts_dir = "/home/lyj/polonius/inputs/vec-push-ref/nll-facts/main";
     let tables = &mut intern::InternerTables::new();
@@ -208,15 +219,17 @@ fn main() {
             atom2usize.loan.insert(l.clone(), atom2usize.loan.len());
         }
     }
+
     dump_map("origin", &atom2usize.origin, &tables.origins);
     dump_map("loan", &atom2usize.loan, &tables.loans);
     dump_map("path", &atom2usize.path, &tables.paths);
     dump_map("point", &atom2usize.point, &tables.points);
     dump_map("variable", &atom2usize.variable, &tables.variables);
+    dump_fielddomains(&atom2usize);
 
-    // origin1 origin2
-    // point1 point2
-    // path1 path2
+    // origin0 origin1
+    // point0 point1
+    // path0 path1
     // loan variable
     let bddvar_count: usize = 2 * log2(atom2usize.origin.len().next_power_of_two())
         + log2(atom2usize.loan.len().next_power_of_two())
@@ -226,133 +239,138 @@ fn main() {
     let variable_set = BddVariableSet::new_anonymous(bddvar_count as u16);
 
     let mut index: usize = 0;
-    let mut mp: HashMap<&'static str, Vec<Bdd>> = HashMap::new();
+    let mut var2bdd = Var2Bdd {
+        origin0: vec![],
+        origin1: vec![],
+        path0: vec![],
+        path1: vec![],
+        point0: vec![],
+        point1: vec![],
+        variable: vec![],
+        loan: vec![],
+    };
 
     for s in V {
         match s {
             "origin0" => {
-                let mut v = vec![];
+                let v = &mut var2bdd.origin0;
                 for _i in 0..log2(atom2usize.origin.len().next_power_of_two()) {
                     v.push(variable_set.mk_var_by_name(&("x_".to_owned() + &index.to_string())));
                     index += 1;
                 }
-                mp.insert(s, v);
             }
             "origin1" => {
-                let mut v = vec![];
+                let v = &mut var2bdd.origin0;
                 for _i in 0..log2(atom2usize.origin.len().next_power_of_two()) {
                     v.push(variable_set.mk_var_by_name(&("x_".to_owned() + &index.to_string())));
                     index += 1;
                 }
-                mp.insert(s, v);
             }
             "loan" => {
-                let mut v = vec![];
+                let v = &mut var2bdd.loan;
                 for _i in 0..log2(atom2usize.loan.len().next_power_of_two()) {
                     v.push(variable_set.mk_var_by_name(&("x_".to_owned() + &index.to_string())));
                     index += 1;
                 }
-                mp.insert(s, v);
             }
             "variable" => {
-                let mut v = vec![];
+                let v = &mut var2bdd.variable;
                 for _i in 0..log2(atom2usize.variable.len().next_power_of_two()) {
                     v.push(variable_set.mk_var_by_name(&("x_".to_owned() + &index.to_string())));
                     index += 1;
                 }
-                mp.insert(s, v);
             }
             "path0" => {
-                let mut v = vec![];
+                let v = &mut var2bdd.path0;
                 for _i in 0..log2(atom2usize.path.len().next_power_of_two()) {
                     v.push(variable_set.mk_var_by_name(&("x_".to_owned() + &index.to_string())));
                     index += 1;
                 }
-                mp.insert(s, v);
             }
             "path1" => {
-                let mut v = vec![];
+                let v = &mut var2bdd.path1;
                 for _i in 0..log2(atom2usize.path.len().next_power_of_two()) {
                     v.push(variable_set.mk_var_by_name(&("x_".to_owned() + &index.to_string())));
                     index += 1;
                 }
-                mp.insert(s, v);
             }
             "point0" => {
-                let mut v = vec![];
+                let v = &mut var2bdd.point0;
                 for _i in 0..log2(atom2usize.point.len().next_power_of_two()) {
                     v.push(variable_set.mk_var_by_name(&("x_".to_owned() + &index.to_string())));
                     index += 1;
                 }
-                mp.insert(s, v);
             }
             "point1" => {
-                let mut v = vec![];
+                let v = &mut var2bdd.point1;
                 for _i in 0..log2(atom2usize.point.len().next_power_of_two()) {
                     v.push(variable_set.mk_var_by_name(&("x_".to_owned() + &index.to_string())));
                     index += 1;
                 }
-                mp.insert(s, v);
             }
             _ => unreachable!(),
         }
     }
 
     dbg!("{:?}", &atom2usize);
-    // dbg!("{:?}", &mp);
+    // dbg!("{:?}", &var2bdd);
 
-    let bdd: Bdd = parse::parse_cfg_edge(&atom2usize, &all_facts, &mp, &variable_set);
+    let bdd: Bdd = parse::parse_cfg_edge(&atom2usize, &all_facts, &var2bdd, &variable_set);
     dump_bdd(bddvar_count, bdd, "cfg_edge");
 
-    let bdd: Bdd = parse::parse_child_path(&atom2usize, &all_facts, &mp, &variable_set);
+    let bdd: Bdd = parse::parse_child_path(&atom2usize, &all_facts, &var2bdd, &variable_set);
     dump_bdd(bddvar_count, bdd, "child_path");
 
     let bdd: Bdd =
-        parse::parse_drop_of_var_derefs_origin(&atom2usize, &all_facts, &mp, &variable_set);
+        parse::parse_drop_of_var_derefs_origin(&atom2usize, &all_facts, &var2bdd, &variable_set);
     dump_bdd(bddvar_count, bdd, "drop_of_var_derefs_origin");
 
     let bdd: Bdd =
-        parse::parse_use_of_var_derefs_origin(&atom2usize, &all_facts, &mp, &variable_set);
+        parse::parse_use_of_var_derefs_origin(&atom2usize, &all_facts, &var2bdd, &variable_set);
     dump_bdd(bddvar_count, bdd, "use_of_var_derefs_origin");
 
     let bdd: Bdd =
-        parse::parse_known_placeholder_subset(&atom2usize, &all_facts, &mp, &variable_set);
+        parse::parse_known_placeholder_subset(&atom2usize, &all_facts, &var2bdd, &variable_set);
     dump_bdd(bddvar_count, bdd, "known_placeholder_subset");
 
-    let bdd: Bdd = parse::parse_loan_invalidated_at(&atom2usize, &all_facts, &mp, &variable_set);
+    let bdd: Bdd =
+        parse::parse_loan_invalidated_at(&atom2usize, &all_facts, &var2bdd, &variable_set);
     dump_bdd(bddvar_count, bdd, "loan_invalidated_at");
 
-    let bdd: Bdd = parse::parse_loan_killed_at(&atom2usize, &all_facts, &mp, &variable_set);
+    let bdd: Bdd = parse::parse_loan_killed_at(&atom2usize, &all_facts, &var2bdd, &variable_set);
     dump_bdd(bddvar_count, bdd, "loan_killed_at");
 
-    let bdd: Bdd = parse::parse_loan_issued_at(&atom2usize, &all_facts, &mp, &variable_set);
+    let bdd: Bdd = parse::parse_loan_issued_at(&atom2usize, &all_facts, &var2bdd, &variable_set);
     dump_bdd(bddvar_count, bdd, "loan_issued_at");
 
-    let bdd: Bdd = parse::parse_path_accessed_at_base(&atom2usize, &all_facts, &mp, &variable_set);
+    let bdd: Bdd =
+        parse::parse_path_accessed_at_base(&atom2usize, &all_facts, &var2bdd, &variable_set);
     dump_bdd(bddvar_count, bdd, "path_accessed_at_base");
 
-    let bdd: Bdd = parse::parse_path_assigned_at_base(&atom2usize, &all_facts, &mp, &variable_set);
+    let bdd: Bdd =
+        parse::parse_path_assigned_at_base(&atom2usize, &all_facts, &var2bdd, &variable_set);
     dump_bdd(bddvar_count, bdd, "path_assigned_at_base");
 
-    let bdd: Bdd = parse::parse_path_moved_at_base(&atom2usize, &all_facts, &mp, &variable_set);
+    let bdd: Bdd =
+        parse::parse_path_moved_at_base(&atom2usize, &all_facts, &var2bdd, &variable_set);
     dump_bdd(bddvar_count, bdd, "path_moved_at_base");
 
-    let bdd: Bdd = parse::parse_path_is_var(&atom2usize, &all_facts, &mp, &variable_set);
+    let bdd: Bdd = parse::parse_path_is_var(&atom2usize, &all_facts, &var2bdd, &variable_set);
     dump_bdd(bddvar_count, bdd, "path_is_var");
 
-    let bdd: Bdd = parse::parse_placeholder(&atom2usize, &all_facts, &mp, &variable_set);
+    let bdd: Bdd = parse::parse_placeholder(&atom2usize, &all_facts, &var2bdd, &variable_set);
     dump_bdd(bddvar_count, bdd, "placeholder");
 
-    let bdd: Bdd = parse::parse_subset_base(&atom2usize, &all_facts, &mp, &variable_set);
+    let bdd: Bdd = parse::parse_subset_base(&atom2usize, &all_facts, &var2bdd, &variable_set);
     dump_bdd(bddvar_count, bdd, "subset_base");
 
-    let bdd: Bdd = parse::parse_var_defined_at(&atom2usize, &all_facts, &mp, &variable_set);
+    let bdd: Bdd = parse::parse_var_defined_at(&atom2usize, &all_facts, &var2bdd, &variable_set);
     dump_bdd(bddvar_count, bdd, "var_defined_at");
 
-    let bdd: Bdd = parse::parse_var_dropped_at(&atom2usize, &all_facts, &mp, &variable_set);
+    let bdd: Bdd = parse::parse_var_dropped_at(&atom2usize, &all_facts, &var2bdd, &variable_set);
     dump_bdd(bddvar_count, bdd, "var_dropped_at");
 
-    let bdd: Bdd = parse::parse_var_used_at(&atom2usize, &all_facts, &mp, &variable_set);
+    let bdd: Bdd = parse::parse_var_used_at(&atom2usize, &all_facts, &var2bdd, &variable_set);
     dump_bdd(bddvar_count, bdd, "var_used_at");
 }
 
@@ -363,12 +381,12 @@ fn dump_bdd(bddvar_count: usize, bdd: Bdd, name: &str) -> std::io::Result<()> {
     path += ".bdd";
     let mut file = File::create(&path)?;
     // dbg!("{:?}{:?}",name,&bdd);
-    if (bdd.size() == 1) {
+    if bdd.size() == 1 {
         // always false
         file.write("0 0 0".as_bytes())?;
         return Ok(());
     }
-    if (bdd.size() == 2) {
+    if bdd.size() == 2 {
         // always true
         file.write("0 0 1".as_bytes())?;
         return Ok(());
@@ -399,18 +417,19 @@ fn dump_bdd(bddvar_count: usize, bdd: Bdd, name: &str) -> std::io::Result<()> {
 // dump .map file
 fn dump_map<T: From<usize> + Into<usize> + Copy>(
     name: &str,
-    mp: &HashMap<T, usize>,
+    var2bdd: &HashMap<T, usize>,
     interner: &Interner<T>,
 ) -> std::io::Result<()> {
     std::fs::create_dir("pa.joeq");
-    let mut vec = vec![""; mp.len()];
-    for (k, v) in mp {
-        vec[v.clone()] = interner.untern(*k);
-    }
     let mut path: String = "pa.joeq/".to_owned();
     path += name;
     path += ".map";
     let mut file = File::create(&path)?;
+
+    let mut vec = vec![""; var2bdd.len()];
+    for (k, v) in var2bdd {
+        vec[v.clone()] = interner.untern(*k);
+    }
     for s in vec {
         file.write(s.as_bytes())?;
         file.write("\n".as_bytes())?;
@@ -418,9 +437,72 @@ fn dump_map<T: From<usize> + Into<usize> + Copy>(
     Ok(())
 }
 
+fn dump_fielddomains<T: FactTypes>(atom2usize: &Atom2Usize<T>) -> std::io::Result<()> {
+    std::fs::create_dir("pa.joeq");
+    let path = "pa.joeq/fielddomains";
+    let mut file = File::create(path)?;
+
+    file.write("VARIABLE ".as_bytes())?;
+    file.write(
+        atom2usize
+            .variable
+            .len()
+            .next_power_of_two()
+            .to_string()
+            .as_bytes(),
+    )?;
+    file.write(" variable.map\n".as_bytes())?;
+
+    file.write("ORIGIN ".as_bytes())?;
+    file.write(
+        atom2usize
+            .origin
+            .len()
+            .next_power_of_two()
+            .to_string()
+            .as_bytes(),
+    )?;
+    file.write(" origin.map\n".as_bytes())?;
+
+    file.write("POINT ".as_bytes())?;
+    file.write(
+        atom2usize
+            .point
+            .len()
+            .next_power_of_two()
+            .to_string()
+            .as_bytes(),
+    )?;
+    file.write(" point.map\n".as_bytes())?;
+
+    file.write("PATH ".as_bytes())?;
+    file.write(
+        atom2usize
+            .path
+            .len()
+            .next_power_of_two()
+            .to_string()
+            .as_bytes(),
+    )?;
+    file.write(" path.map\n".as_bytes())?;
+
+    file.write("LOAN ".as_bytes())?;
+    file.write(
+        atom2usize
+            .loan
+            .len()
+            .next_power_of_two()
+            .to_string()
+            .as_bytes(),
+    )?;
+    file.write(" loan.map\n".as_bytes())?;
+
+    Ok(())
+}
+
 fn log2(mut x: usize) -> usize {
     let mut res = 0;
-    while ((x & 1) == 0) {
+    while (x & 1) == 0 {
         res += 1;
         x >>= 1;
     }
