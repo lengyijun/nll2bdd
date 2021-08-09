@@ -382,33 +382,33 @@ fn dump_bdd(bddvar_count: usize, bdd: Bdd, name: &str) -> std::io::Result<()> {
     let mut file = File::create(&path)?;
     if bdd.size() == 1 {
         // always false
-        file.write("0 0 0".as_bytes())?;
+        file.write_all("0 0 0".as_bytes())?;
         return Ok(());
     }
     if bdd.size() == 2 {
         // always true
-        file.write("0 0 1".as_bytes())?;
+        file.write_all("0 0 1".as_bytes())?;
         return Ok(());
     }
     // no 0 1
-    file.write((bdd.size() - 2).to_string().as_bytes())?;
-    file.write(" ".as_bytes())?;
-    file.write(bddvar_count.to_string().as_bytes())?;
-    file.write("\n".as_bytes())?;
+    file.write_all((bdd.size() - 2).to_string().as_bytes())?;
+    file.write_all(" ".as_bytes())?;
+    file.write_all(bddvar_count.to_string().as_bytes())?;
+    file.write_all("\n".as_bytes())?;
     for i in 0..bddvar_count {
-        file.write(i.to_string().as_bytes())?;
-        file.write(" ".as_bytes())?;
+        file.write_all(i.to_string().as_bytes())?;
+        file.write_all(" ".as_bytes())?;
     }
-    file.write("\n".as_bytes())?;
+    file.write_all("\n".as_bytes())?;
     for (i, bddnode) in bdd.nodes().enumerate().skip(2) {
-        file.write(i.to_string().as_bytes())?;
-        file.write(" ".as_bytes())?;
-        file.write(bddnode.var.0.to_string().as_bytes())?;
-        file.write(" ".as_bytes())?;
-        file.write(bddnode.low_link.0.to_string().as_bytes())?;
-        file.write(" ".as_bytes())?;
-        file.write(bddnode.high_link.0.to_string().as_bytes())?;
-        file.write("\n".as_bytes())?;
+        file.write_all(i.to_string().as_bytes())?;
+        file.write_all(" ".as_bytes())?;
+        file.write_all(bddnode.var.0.to_string().as_bytes())?;
+        file.write_all(" ".as_bytes())?;
+        file.write_all(bddnode.low_link.0.to_string().as_bytes())?;
+        file.write_all(" ".as_bytes())?;
+        file.write_all(bddnode.high_link.0.to_string().as_bytes())?;
+        file.write_all("\n".as_bytes())?;
     }
     Ok(())
 }
@@ -430,8 +430,8 @@ fn dump_map<T: From<usize> + Into<usize> + Copy>(
         vec[v.clone()] = interner.untern(*k);
     }
     for s in vec {
-        file.write(s.as_bytes())?;
-        file.write("\n".as_bytes())?;
+        file.write_all(s.as_bytes())?;
+        file.write_all("\n".as_bytes())?;
     }
     Ok(())
 }
@@ -441,8 +441,8 @@ fn dump_fielddomainspa<T: FactTypes>(atom2usize: &Atom2Usize<T>) -> std::io::Res
     let path = "pa.joeq/fielddomains.pa";
     let mut file = File::create(path)?;
 
-    file.write("VARIABLE ".as_bytes())?;
-    file.write(
+    file.write_all("VARIABLE ".as_bytes())?;
+    file.write_all(
         atom2usize
             .variable
             .len()
@@ -450,10 +450,10 @@ fn dump_fielddomainspa<T: FactTypes>(atom2usize: &Atom2Usize<T>) -> std::io::Res
             .to_string()
             .as_bytes(),
     )?;
-    file.write(" variable.map\n".as_bytes())?;
+    file.write_all(" variable.map\n".as_bytes())?;
 
-    file.write("ORIGIN ".as_bytes())?;
-    file.write(
+    file.write_all("ORIGIN ".as_bytes())?;
+    file.write_all(
         atom2usize
             .origin
             .len()
@@ -461,10 +461,10 @@ fn dump_fielddomainspa<T: FactTypes>(atom2usize: &Atom2Usize<T>) -> std::io::Res
             .to_string()
             .as_bytes(),
     )?;
-    file.write(" origin.map\n".as_bytes())?;
+    file.write_all(" origin.map\n".as_bytes())?;
 
-    file.write("POINT ".as_bytes())?;
-    file.write(
+    file.write_all("POINT ".as_bytes())?;
+    file.write_all(
         atom2usize
             .point
             .len()
@@ -472,10 +472,10 @@ fn dump_fielddomainspa<T: FactTypes>(atom2usize: &Atom2Usize<T>) -> std::io::Res
             .to_string()
             .as_bytes(),
     )?;
-    file.write(" point.map\n".as_bytes())?;
+    file.write_all(" point.map\n".as_bytes())?;
 
-    file.write("PATH ".as_bytes())?;
-    file.write(
+    file.write_all("PATH ".as_bytes())?;
+    file.write_all(
         atom2usize
             .path
             .len()
@@ -483,10 +483,10 @@ fn dump_fielddomainspa<T: FactTypes>(atom2usize: &Atom2Usize<T>) -> std::io::Res
             .to_string()
             .as_bytes(),
     )?;
-    file.write(" path.map\n".as_bytes())?;
+    file.write_all(" path.map\n".as_bytes())?;
 
-    file.write("LOAN ".as_bytes())?;
-    file.write(
+    file.write_all("LOAN ".as_bytes())?;
+    file.write_all(
         atom2usize
             .loan
             .len()
@@ -494,7 +494,7 @@ fn dump_fielddomainspa<T: FactTypes>(atom2usize: &Atom2Usize<T>) -> std::io::Res
             .to_string()
             .as_bytes(),
     )?;
-    file.write(" loan.map\n".as_bytes())?;
+    file.write_all(" loan.map\n".as_bytes())?;
 
     Ok(())
 }
