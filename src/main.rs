@@ -81,14 +81,10 @@ fn main() {
     }
     for (o1, o2, p) in &all_facts.subset_base {
         if !atom2usize.origin.contains_key(o1) {
-            atom2usize
-                .origin
-                .insert(*o1, atom2usize.origin.len());
+            atom2usize.origin.insert(*o1, atom2usize.origin.len());
         }
         if !atom2usize.origin.contains_key(o2) {
-            atom2usize
-                .origin
-                .insert(*o2, atom2usize.origin.len());
+            atom2usize.origin.insert(*o2, atom2usize.origin.len());
         }
         if !atom2usize.point.contains_key(p) {
             atom2usize.point.insert(*p, atom2usize.point.len());
@@ -104,9 +100,7 @@ fn main() {
     }
     for (v, p) in &all_facts.var_used_at {
         if !atom2usize.variable.contains_key(v) {
-            atom2usize
-                .variable
-                .insert(*v, atom2usize.variable.len());
+            atom2usize.variable.insert(*v, atom2usize.variable.len());
         }
         if !atom2usize.point.contains_key(p) {
             atom2usize.point.insert(*p, atom2usize.point.len());
@@ -114,9 +108,7 @@ fn main() {
     }
     for (v, p) in &all_facts.var_defined_at {
         if !atom2usize.variable.contains_key(v) {
-            atom2usize
-                .variable
-                .insert(*v, atom2usize.variable.len());
+            atom2usize.variable.insert(*v, atom2usize.variable.len());
         }
         if !atom2usize.point.contains_key(p) {
             atom2usize.point.insert(*p, atom2usize.point.len());
@@ -124,9 +116,7 @@ fn main() {
     }
     for (v, p) in &all_facts.var_dropped_at {
         if !atom2usize.variable.contains_key(v) {
-            atom2usize
-                .variable
-                .insert(*v, atom2usize.variable.len());
+            atom2usize.variable.insert(*v, atom2usize.variable.len());
         }
         if !atom2usize.point.contains_key(p) {
             atom2usize.point.insert(*p, atom2usize.point.len());
@@ -134,9 +124,7 @@ fn main() {
     }
     for (v, o) in &all_facts.use_of_var_derefs_origin {
         if !atom2usize.variable.contains_key(v) {
-            atom2usize
-                .variable
-                .insert(*v, atom2usize.variable.len());
+            atom2usize.variable.insert(*v, atom2usize.variable.len());
         }
         if !atom2usize.origin.contains_key(o) {
             atom2usize.origin.insert(*o, atom2usize.origin.len());
@@ -144,9 +132,7 @@ fn main() {
     }
     for (v, o) in &all_facts.drop_of_var_derefs_origin {
         if !atom2usize.variable.contains_key(v) {
-            atom2usize
-                .variable
-                .insert(*v, atom2usize.variable.len());
+            atom2usize.variable.insert(*v, atom2usize.variable.len());
         }
         if !atom2usize.origin.contains_key(o) {
             atom2usize.origin.insert(*o, atom2usize.origin.len());
@@ -165,9 +151,7 @@ fn main() {
             atom2usize.path.insert(*p, atom2usize.path.len());
         }
         if !atom2usize.variable.contains_key(v) {
-            atom2usize
-                .variable
-                .insert(*v, atom2usize.variable.len());
+            atom2usize.variable.insert(*v, atom2usize.variable.len());
         }
     }
     for (path, point) in &all_facts.path_assigned_at_base {
@@ -175,9 +159,7 @@ fn main() {
             atom2usize.path.insert(*path, atom2usize.path.len());
         }
         if !atom2usize.point.contains_key(point) {
-            atom2usize
-                .point
-                .insert(*point, atom2usize.point.len());
+            atom2usize.point.insert(*point, atom2usize.point.len());
         }
     }
     for (path, point) in &all_facts.path_moved_at_base {
@@ -185,9 +167,7 @@ fn main() {
             atom2usize.path.insert(*path, atom2usize.path.len());
         }
         if !atom2usize.point.contains_key(point) {
-            atom2usize
-                .point
-                .insert(*point, atom2usize.point.len());
+            atom2usize.point.insert(*point, atom2usize.point.len());
         }
     }
     for (path, point) in &all_facts.path_accessed_at_base {
@@ -195,21 +175,15 @@ fn main() {
             atom2usize.path.insert(*path, atom2usize.path.len());
         }
         if !atom2usize.point.contains_key(point) {
-            atom2usize
-                .point
-                .insert(*point, atom2usize.point.len());
+            atom2usize.point.insert(*point, atom2usize.point.len());
         }
     }
     for (o1, o2) in &all_facts.known_placeholder_subset {
         if !atom2usize.origin.contains_key(o1) {
-            atom2usize
-                .origin
-                .insert(*o1, atom2usize.origin.len());
+            atom2usize.origin.insert(*o1, atom2usize.origin.len());
         }
         if !atom2usize.origin.contains_key(o2) {
-            atom2usize
-                .origin
-                .insert(*o2, atom2usize.origin.len());
+            atom2usize.origin.insert(*o2, atom2usize.origin.len());
         }
     }
     for (o, l) in &all_facts.placeholder {
