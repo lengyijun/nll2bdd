@@ -4,18 +4,18 @@ use biodivine_lib_bdd::BddVariableSet;
 use polonius_engine::AllFacts;
 use polonius_engine::FactTypes;
 
-// cfg_edge(point1, point2)
+// cfg_edge(point0, point1)
 pub fn parse_cfg_edge<T: FactTypes>(
     atom2usize: &Atom2Usize<T>,
     all_facts: &AllFacts<T>,
     var2bdd: &Var2Bdd,
-    variables: &BddVariableSet,
+    bdd_variable_set: &BddVariableSet,
 ) -> Bdd {
     let mut vv: Vec<Bdd> = vec![];
     let mut v: Vec<Bdd> = vec![];
-    for (p1, p2) in &all_facts.cfg_edge {
+    for (p0, p1) in &all_facts.cfg_edge {
         v.clear();
-        let x: usize = atom2usize.point[p1];
+        let x: usize = atom2usize.point[p0];
         for (n, b) in var2bdd.point0.iter().enumerate() {
             if (x & (1 << n)) > 0 {
                 v.push(b.clone());
@@ -23,7 +23,7 @@ pub fn parse_cfg_edge<T: FactTypes>(
                 v.push(b.not());
             }
         }
-        let x: usize = atom2usize.point[p2];
+        let x: usize = atom2usize.point[p1];
         for (n, b) in var2bdd.point1.iter().enumerate() {
             if (x & (1 << n)) > 0 {
                 v.push(b.clone());
@@ -31,10 +31,10 @@ pub fn parse_cfg_edge<T: FactTypes>(
                 v.push(b.not());
             }
         }
-        let b = v.iter().fold(variables.mk_true(), |a, b| a.and(b));
+        let b = v.iter().fold(bdd_variable_set.mk_true(), |a, b| a.and(b));
         vv.push(b);
     }
-    vv.iter().fold(variables.mk_false(), |a, b| a.or(b))
+    vv.iter().fold(bdd_variable_set.mk_false(), |a, b| a.or(b))
 }
 
 // child_path(child, parent)
@@ -42,13 +42,13 @@ pub fn parse_child_path<T: FactTypes>(
     atom2usize: &Atom2Usize<T>,
     all_facts: &AllFacts<T>,
     var2bdd: &Var2Bdd,
-    variables: &BddVariableSet,
+    bdd_variable_set: &BddVariableSet,
 ) -> Bdd {
     let mut vv: Vec<Bdd> = vec![];
     let mut v: Vec<Bdd> = vec![];
-    for (p1, p2) in &all_facts.child_path {
+    for (p0, p1) in &all_facts.child_path {
         v.clear();
-        let x: usize = atom2usize.path[p1];
+        let x: usize = atom2usize.path[p0];
         for (n, b) in var2bdd.path0.iter().enumerate() {
             if (x & (1 << n)) > 0 {
                 v.push(b.clone());
@@ -56,7 +56,7 @@ pub fn parse_child_path<T: FactTypes>(
                 v.push(b.not());
             }
         }
-        let x: usize = atom2usize.path[p2];
+        let x: usize = atom2usize.path[p1];
         for (n, b) in var2bdd.path1.iter().enumerate() {
             if (x & (1 << n)) > 0 {
                 v.push(b.clone());
@@ -64,10 +64,10 @@ pub fn parse_child_path<T: FactTypes>(
                 v.push(b.not());
             }
         }
-        let b = v.iter().fold(variables.mk_true(), |a, b| a.and(b));
+        let b = v.iter().fold(bdd_variable_set.mk_true(), |a, b| a.and(b));
         vv.push(b);
     }
-    vv.iter().fold(variables.mk_false(), |a, b| a.or(b))
+    vv.iter().fold(bdd_variable_set.mk_false(), |a, b| a.or(b))
 }
 
 // drop_of_var_derefs_origin(var, origin)
@@ -75,7 +75,7 @@ pub fn parse_drop_of_var_derefs_origin<T: FactTypes>(
     atom2usize: &Atom2Usize<T>,
     all_facts: &AllFacts<T>,
     var2bdd: &Var2Bdd,
-    variables: &BddVariableSet,
+    bdd_variable_set: &BddVariableSet,
 ) -> Bdd {
     let mut vv: Vec<Bdd> = vec![];
     let mut v: Vec<Bdd> = vec![];
@@ -97,10 +97,10 @@ pub fn parse_drop_of_var_derefs_origin<T: FactTypes>(
                 v.push(b.not());
             }
         }
-        let b = v.iter().fold(variables.mk_true(), |a, b| a.and(b));
+        let b = v.iter().fold(bdd_variable_set.mk_true(), |a, b| a.and(b));
         vv.push(b);
     }
-    vv.iter().fold(variables.mk_false(), |a, b| a.or(b))
+    vv.iter().fold(bdd_variable_set.mk_false(), |a, b| a.or(b))
 }
 
 // use_of_var_derefs_origin(variable, origin)
@@ -108,7 +108,7 @@ pub fn parse_use_of_var_derefs_origin<T: FactTypes>(
     atom2usize: &Atom2Usize<T>,
     all_facts: &AllFacts<T>,
     var2bdd: &Var2Bdd,
-    variables: &BddVariableSet,
+    bdd_variable_set: &BddVariableSet,
 ) -> Bdd {
     let mut vv: Vec<Bdd> = vec![];
     let mut v: Vec<Bdd> = vec![];
@@ -130,10 +130,10 @@ pub fn parse_use_of_var_derefs_origin<T: FactTypes>(
                 v.push(b.not());
             }
         }
-        let b = v.iter().fold(variables.mk_true(), |a, b| a.and(b));
+        let b = v.iter().fold(bdd_variable_set.mk_true(), |a, b| a.and(b));
         vv.push(b);
     }
-    vv.iter().fold(variables.mk_false(), |a, b| a.or(b))
+    vv.iter().fold(bdd_variable_set.mk_false(), |a, b| a.or(b))
 }
 
 // known_placeholder_subset(origin1,origin2)
@@ -141,13 +141,13 @@ pub fn parse_known_placeholder_subset<T: FactTypes>(
     atom2usize: &Atom2Usize<T>,
     all_facts: &AllFacts<T>,
     var2bdd: &Var2Bdd,
-    variables: &BddVariableSet,
+    bdd_variable_set: &BddVariableSet,
 ) -> Bdd {
     let mut vv: Vec<Bdd> = vec![];
     let mut v: Vec<Bdd> = vec![];
-    for (o1, o2) in &all_facts.known_placeholder_subset {
+    for (o0, o1) in &all_facts.known_placeholder_subset {
         v.clear();
-        let x: usize = atom2usize.origin[o1];
+        let x: usize = atom2usize.origin[o0];
         for (n, b) in var2bdd.origin0.iter().enumerate() {
             if (x & (1 << n)) > 0 {
                 v.push(b.clone());
@@ -155,7 +155,7 @@ pub fn parse_known_placeholder_subset<T: FactTypes>(
                 v.push(b.not());
             }
         }
-        let x: usize = atom2usize.origin[o2];
+        let x: usize = atom2usize.origin[o1];
         for (n, b) in var2bdd.origin1.iter().enumerate() {
             if (x & (1 << n)) > 0 {
                 v.push(b.clone());
@@ -163,10 +163,10 @@ pub fn parse_known_placeholder_subset<T: FactTypes>(
                 v.push(b.not());
             }
         }
-        let b = v.iter().fold(variables.mk_true(), |a, b| a.and(b));
+        let b = v.iter().fold(bdd_variable_set.mk_true(), |a, b| a.and(b));
         vv.push(b);
     }
-    vv.iter().fold(variables.mk_false(), |a, b| a.or(b))
+    vv.iter().fold(bdd_variable_set.mk_false(), |a, b| a.or(b))
 }
 
 // loan_invalidated_at: Vec<(T::Point, T::Loan)>,
@@ -174,7 +174,7 @@ pub fn parse_loan_invalidated_at<T: FactTypes>(
     atom2usize: &Atom2Usize<T>,
     all_facts: &AllFacts<T>,
     var2bdd: &Var2Bdd,
-    variables: &BddVariableSet,
+    bdd_variable_set: &BddVariableSet,
 ) -> Bdd {
     let mut vv: Vec<Bdd> = vec![];
     let mut v: Vec<Bdd> = vec![];
@@ -196,10 +196,10 @@ pub fn parse_loan_invalidated_at<T: FactTypes>(
                 v.push(b.not());
             }
         }
-        let b = v.iter().fold(variables.mk_true(), |a, b| a.and(b));
+        let b = v.iter().fold(bdd_variable_set.mk_true(), |a, b| a.and(b));
         vv.push(b);
     }
-    vv.iter().fold(variables.mk_false(), |a, b| a.or(b))
+    vv.iter().fold(bdd_variable_set.mk_false(), |a, b| a.or(b))
 }
 
 // loan_killed_at: Vec<(T::Loan, T::Point )>,
@@ -207,7 +207,7 @@ pub fn parse_loan_killed_at<T: FactTypes>(
     atom2usize: &Atom2Usize<T>,
     all_facts: &AllFacts<T>,
     var2bdd: &Var2Bdd,
-    variables: &BddVariableSet,
+    bdd_variable_set: &BddVariableSet,
 ) -> Bdd {
     let mut vv: Vec<Bdd> = vec![];
     let mut v: Vec<Bdd> = vec![];
@@ -229,17 +229,17 @@ pub fn parse_loan_killed_at<T: FactTypes>(
                 v.push(b.not());
             }
         }
-        let b = v.iter().fold(variables.mk_true(), |a, b| a.and(b));
+        let b = v.iter().fold(bdd_variable_set.mk_true(), |a, b| a.and(b));
         vv.push(b);
     }
-    vv.iter().fold(variables.mk_false(), |a, b| a.or(b))
+    vv.iter().fold(bdd_variable_set.mk_false(), |a, b| a.or(b))
 }
 
 pub fn parse_loan_issued_at<T: FactTypes>(
     atom2usize: &Atom2Usize<T>,
     all_facts: &AllFacts<T>,
     var2bdd: &Var2Bdd,
-    variables: &BddVariableSet,
+    bdd_variable_set: &BddVariableSet,
 ) -> Bdd {
     let mut vv: Vec<Bdd> = vec![];
     let mut v: Vec<Bdd> = vec![];
@@ -269,10 +269,10 @@ pub fn parse_loan_issued_at<T: FactTypes>(
                 v.push(b.not());
             }
         }
-        let b = v.iter().fold(variables.mk_true(), |a, b| a.and(b));
+        let b = v.iter().fold(bdd_variable_set.mk_true(), |a, b| a.and(b));
         vv.push(b);
     }
-    vv.iter().fold(variables.mk_false(), |a, b| a.or(b))
+    vv.iter().fold(bdd_variable_set.mk_false(), |a, b| a.or(b))
 }
 
 // path_accessed_at_base: Vec<(T::Path, T::Point)>
@@ -280,7 +280,7 @@ pub fn parse_path_accessed_at_base<T: FactTypes>(
     atom2usize: &Atom2Usize<T>,
     all_facts: &AllFacts<T>,
     var2bdd: &Var2Bdd,
-    variables: &BddVariableSet,
+    bdd_variable_set: &BddVariableSet,
 ) -> Bdd {
     let mut vv: Vec<Bdd> = vec![];
     let mut v: Vec<Bdd> = vec![];
@@ -302,10 +302,10 @@ pub fn parse_path_accessed_at_base<T: FactTypes>(
                 v.push(b.not());
             }
         }
-        let b = v.iter().fold(variables.mk_true(), |a, b| a.and(b));
+        let b = v.iter().fold(bdd_variable_set.mk_true(), |a, b| a.and(b));
         vv.push(b);
     }
-    vv.iter().fold(variables.mk_false(), |a, b| a.or(b))
+    vv.iter().fold(bdd_variable_set.mk_false(), |a, b| a.or(b))
 }
 
 // path_assigned_at_base: Vec<(T::Path, T::Point)>
@@ -313,7 +313,7 @@ pub fn parse_path_assigned_at_base<T: FactTypes>(
     atom2usize: &Atom2Usize<T>,
     all_facts: &AllFacts<T>,
     var2bdd: &Var2Bdd,
-    variables: &BddVariableSet,
+    bdd_variable_set: &BddVariableSet,
 ) -> Bdd {
     let mut vv: Vec<Bdd> = vec![];
     let mut v: Vec<Bdd> = vec![];
@@ -335,10 +335,10 @@ pub fn parse_path_assigned_at_base<T: FactTypes>(
                 v.push(b.not());
             }
         }
-        let b = v.iter().fold(variables.mk_true(), |a, b| a.and(b));
+        let b = v.iter().fold(bdd_variable_set.mk_true(), |a, b| a.and(b));
         vv.push(b);
     }
-    vv.iter().fold(variables.mk_false(), |a, b| a.or(b))
+    vv.iter().fold(bdd_variable_set.mk_false(), |a, b| a.or(b))
 }
 
 // path_moved_at_base: Vec<(T::Path, T::Point)>
@@ -346,7 +346,7 @@ pub fn parse_path_moved_at_base<T: FactTypes>(
     atom2usize: &Atom2Usize<T>,
     all_facts: &AllFacts<T>,
     var2bdd: &Var2Bdd,
-    variables: &BddVariableSet,
+    bdd_variable_set: &BddVariableSet,
 ) -> Bdd {
     let mut vv: Vec<Bdd> = vec![];
     let mut v: Vec<Bdd> = vec![];
@@ -368,10 +368,10 @@ pub fn parse_path_moved_at_base<T: FactTypes>(
                 v.push(b.not());
             }
         }
-        let b = v.iter().fold(variables.mk_true(), |a, b| a.and(b));
+        let b = v.iter().fold(bdd_variable_set.mk_true(), |a, b| a.and(b));
         vv.push(b);
     }
-    vv.iter().fold(variables.mk_false(), |a, b| a.or(b))
+    vv.iter().fold(bdd_variable_set.mk_false(), |a, b| a.or(b))
 }
 
 // path_is_var: Vec<(T::Path, T::Variable)>
@@ -379,7 +379,7 @@ pub fn parse_path_is_var<T: FactTypes>(
     atom2usize: &Atom2Usize<T>,
     all_facts: &AllFacts<T>,
     var2bdd: &Var2Bdd,
-    variables: &BddVariableSet,
+    bdd_variable_set: &BddVariableSet,
 ) -> Bdd {
     let mut vv: Vec<Bdd> = vec![];
     let mut v: Vec<Bdd> = vec![];
@@ -401,10 +401,10 @@ pub fn parse_path_is_var<T: FactTypes>(
                 v.push(b.not());
             }
         }
-        let b = v.iter().fold(variables.mk_true(), |a, b| a.and(b));
+        let b = v.iter().fold(bdd_variable_set.mk_true(), |a, b| a.and(b));
         vv.push(b);
     }
-    vv.iter().fold(variables.mk_false(), |a, b| a.or(b))
+    vv.iter().fold(bdd_variable_set.mk_false(), |a, b| a.or(b))
 }
 
 // placeholder: Vec<(T::Origin, T::Loan)>,
@@ -412,7 +412,7 @@ pub fn parse_placeholder<T: FactTypes>(
     atom2usize: &Atom2Usize<T>,
     all_facts: &AllFacts<T>,
     var2bdd: &Var2Bdd,
-    variables: &BddVariableSet,
+    bdd_variable_set: &BddVariableSet,
 ) -> Bdd {
     let mut vv: Vec<Bdd> = vec![];
     let mut v: Vec<Bdd> = vec![];
@@ -434,10 +434,10 @@ pub fn parse_placeholder<T: FactTypes>(
                 v.push(b.not());
             }
         }
-        let b = v.iter().fold(variables.mk_true(), |a, b| a.and(b));
+        let b = v.iter().fold(bdd_variable_set.mk_true(), |a, b| a.and(b));
         vv.push(b);
     }
-    vv.iter().fold(variables.mk_false(), |a, b| a.or(b))
+    vv.iter().fold(bdd_variable_set.mk_false(), |a, b| a.or(b))
 }
 
 // subset_base: Vec<(T::Origin, T::Origin, T::Point)>
@@ -445,13 +445,13 @@ pub fn parse_subset_base<T: FactTypes>(
     atom2usize: &Atom2Usize<T>,
     all_facts: &AllFacts<T>,
     var2bdd: &Var2Bdd,
-    variables: &BddVariableSet,
+    bdd_variable_set: &BddVariableSet,
 ) -> Bdd {
     let mut vv: Vec<Bdd> = vec![];
     let mut v: Vec<Bdd> = vec![];
-    for (o1, o2, point) in &all_facts.subset_base {
+    for (o0, o1, point) in &all_facts.subset_base {
         v.clear();
-        let x: usize = atom2usize.origin[o1];
+        let x: usize = atom2usize.origin[o0];
         for (n, b) in var2bdd.origin0.iter().enumerate() {
             if (x & (1 << n)) > 0 {
                 v.push(b.clone());
@@ -459,7 +459,7 @@ pub fn parse_subset_base<T: FactTypes>(
                 v.push(b.not());
             }
         }
-        let x: usize = atom2usize.origin[o2];
+        let x: usize = atom2usize.origin[o1];
         for (n, b) in var2bdd.origin1.iter().enumerate() {
             if (x & (1 << n)) > 0 {
                 v.push(b.clone());
@@ -475,10 +475,10 @@ pub fn parse_subset_base<T: FactTypes>(
                 v.push(b.not());
             }
         }
-        let b = v.iter().fold(variables.mk_true(), |a, b| a.and(b));
+        let b = v.iter().fold(bdd_variable_set.mk_true(), |a, b| a.and(b));
         vv.push(b);
     }
-    vv.iter().fold(variables.mk_false(), |a, b| a.or(b))
+    vv.iter().fold(bdd_variable_set.mk_false(), |a, b| a.or(b))
 }
 
 // var_defined_at: Vec<(T::Variable, T::Point)>
@@ -486,7 +486,7 @@ pub fn parse_var_defined_at<T: FactTypes>(
     atom2usize: &Atom2Usize<T>,
     all_facts: &AllFacts<T>,
     var2bdd: &Var2Bdd,
-    variables: &BddVariableSet,
+    bdd_variable_set: &BddVariableSet,
 ) -> Bdd {
     let mut vv: Vec<Bdd> = vec![];
     let mut v: Vec<Bdd> = vec![];
@@ -508,17 +508,17 @@ pub fn parse_var_defined_at<T: FactTypes>(
                 v.push(b.not());
             }
         }
-        let b = v.iter().fold(variables.mk_true(), |a, b| a.and(b));
+        let b = v.iter().fold(bdd_variable_set.mk_true(), |a, b| a.and(b));
         vv.push(b);
     }
-    vv.iter().fold(variables.mk_false(), |a, b| a.or(b))
+    vv.iter().fold(bdd_variable_set.mk_false(), |a, b| a.or(b))
 }
 
 pub fn parse_var_dropped_at<T: FactTypes>(
     atom2usize: &Atom2Usize<T>,
     all_facts: &AllFacts<T>,
     var2bdd: &Var2Bdd,
-    variables: &BddVariableSet,
+    bdd_variable_set: &BddVariableSet,
 ) -> Bdd {
     let mut vv: Vec<Bdd> = vec![];
     let mut v: Vec<Bdd> = vec![];
@@ -540,17 +540,17 @@ pub fn parse_var_dropped_at<T: FactTypes>(
                 v.push(b.not());
             }
         }
-        let b = v.iter().fold(variables.mk_true(), |a, b| a.and(b));
+        let b = v.iter().fold(bdd_variable_set.mk_true(), |a, b| a.and(b));
         vv.push(b);
     }
-    vv.iter().fold(variables.mk_false(), |a, b| a.or(b))
+    vv.iter().fold(bdd_variable_set.mk_false(), |a, b| a.or(b))
 }
 
 pub fn parse_var_used_at<T: FactTypes>(
     atom2usize: &Atom2Usize<T>,
     all_facts: &AllFacts<T>,
     var2bdd: &Var2Bdd,
-    variables: &BddVariableSet,
+    bdd_variable_set: &BddVariableSet,
 ) -> Bdd {
     let mut vv: Vec<Bdd> = vec![];
     let mut v: Vec<Bdd> = vec![];
@@ -572,8 +572,8 @@ pub fn parse_var_used_at<T: FactTypes>(
                 v.push(b.not());
             }
         }
-        let b = v.iter().fold(variables.mk_true(), |a, b| a.and(b));
+        let b = v.iter().fold(bdd_variable_set.mk_true(), |a, b| a.and(b));
         vv.push(b);
     }
-    vv.iter().fold(variables.mk_false(), |a, b| a.or(b))
+    vv.iter().fold(bdd_variable_set.mk_false(), |a, b| a.or(b))
 }
