@@ -41,6 +41,7 @@ var_live_on_entry(var:VARIABLE0,point:POINT0)
 var_maybe_partly_initialized_on_entry(var:VARIABLE,point:POINT0)
 var_drop_live_on_entry(var:VARIABLE,point:POINT0)
 origin_live_on_entry(o:ORIGIN,point:POINT0) output
+all_node(p:POINT)
 
 ## Rules
 ### initialization
@@ -83,4 +84,9 @@ var_drop_live_on_entry(Var, SourceNode) :- var_drop_live_on_entry(Var, TargetNod
 
 origin_live_on_entry(origin, point) :- var_drop_live_on_entry(var, point), drop_of_var_derefs_origin(var, origin).
 origin_live_on_entry(origin, point) :- var_live_on_entry(var, point), use_of_var_derefs_origin(var, origin).
+origin_live_on_entry(origin, point) :- all_node(point), placeholder(origin, _).
+
+all_node(p0):- cfg_edge (p0,_).
+all_node(p1):- cfg_edge (_,p1).
+
 
