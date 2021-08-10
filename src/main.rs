@@ -15,7 +15,7 @@ mod parse;
 mod tab_delim;
 
 // TODO change order to speed up
-static BDDVARORDER: [&'static str; 8] = [
+static BDDVARORDER: [&str; 8] = [
     "ORIGIN0", "ORIGIN1", "LOAN", "VARIABLE", "PATH0", "PATH1", "POINT0", "POINT1",
 ];
 
@@ -29,21 +29,21 @@ pub struct Atom2Usize<T: FactTypes> {
 }
 
 pub struct Var2Bdd {
-    origin0: Vec<Bdd>,
-    origin1: Vec<Bdd>,
-    path0: Vec<Bdd>,
-    path1: Vec<Bdd>,
-    point0: Vec<Bdd>,
-    point1: Vec<Bdd>,
-    variable: Vec<Bdd>,
-    loan: Vec<Bdd>,
+    origin0: Vec<u16>,
+    origin1: Vec<u16>,
+    path0: Vec<u16>,
+    path1: Vec<u16>,
+    point0: Vec<u16>,
+    point1: Vec<u16>,
+    variable: Vec<u16>,
+    loan: Vec<u16>,
 }
 
 fn main() {
     // let facts_dir = "/home/lyj/polonius/inputs/smoke-test/nll-facts/basic_move_error";
     let facts_dir = std::env::args().nth(1).unwrap();
     let tables = &mut intern::InternerTables::new();
-    let all_facts = tab_delim::load_tab_delimited_facts(tables, &Path::new(&facts_dir)).unwrap();
+    let all_facts = tab_delim::load_tab_delimited_facts(tables, Path::new(&facts_dir)).unwrap();
 
     let mut atom2usize = Atom2Usize::<LocalFacts> {
         origin: HashMap::new(),
@@ -213,7 +213,7 @@ fn main() {
         + 2 * log2(atom2usize.point.len().next_power_of_two());
     let variable_set = BddVariableSet::new_anonymous(bddvar_count as u16);
 
-    let mut index: usize = 0;
+    let mut index: u16 = 0;
     let mut var2bdd = Var2Bdd {
         origin0: vec![],
         origin1: vec![],
@@ -230,56 +230,56 @@ fn main() {
             "ORIGIN0" => {
                 let v = &mut var2bdd.origin0;
                 for _i in 0..log2(atom2usize.origin.len().next_power_of_two()) {
-                    v.push(variable_set.mk_var_by_name(&("x_".to_owned() + &index.to_string())));
+                    v.push(index);
                     index += 1;
                 }
             }
             "ORIGIN1" => {
                 let v = &mut var2bdd.origin1;
                 for _i in 0..log2(atom2usize.origin.len().next_power_of_two()) {
-                    v.push(variable_set.mk_var_by_name(&("x_".to_owned() + &index.to_string())));
+                    v.push(index);
                     index += 1;
                 }
             }
             "LOAN" => {
                 let v = &mut var2bdd.loan;
                 for _i in 0..log2(atom2usize.loan.len().next_power_of_two()) {
-                    v.push(variable_set.mk_var_by_name(&("x_".to_owned() + &index.to_string())));
+                    v.push(index);
                     index += 1;
                 }
             }
             "VARIABLE" => {
                 let v = &mut var2bdd.variable;
                 for _i in 0..log2(atom2usize.variable.len().next_power_of_two()) {
-                    v.push(variable_set.mk_var_by_name(&("x_".to_owned() + &index.to_string())));
+                    v.push(index);
                     index += 1;
                 }
             }
             "PATH0" => {
                 let v = &mut var2bdd.path0;
                 for _i in 0..log2(atom2usize.path.len().next_power_of_two()) {
-                    v.push(variable_set.mk_var_by_name(&("x_".to_owned() + &index.to_string())));
+                    v.push(index);
                     index += 1;
                 }
             }
             "PATH1" => {
                 let v = &mut var2bdd.path1;
                 for _i in 0..log2(atom2usize.path.len().next_power_of_two()) {
-                    v.push(variable_set.mk_var_by_name(&("x_".to_owned() + &index.to_string())));
+                    v.push(index);
                     index += 1;
                 }
             }
             "POINT0" => {
                 let v = &mut var2bdd.point0;
                 for _i in 0..log2(atom2usize.point.len().next_power_of_two()) {
-                    v.push(variable_set.mk_var_by_name(&("x_".to_owned() + &index.to_string())));
+                    v.push(index);
                     index += 1;
                 }
             }
             "POINT1" => {
                 let v = &mut var2bdd.point1;
                 for _i in 0..log2(atom2usize.point.len().next_power_of_two()) {
-                    v.push(variable_set.mk_var_by_name(&("x_".to_owned() + &index.to_string())));
+                    v.push(index);
                     index += 1;
                 }
             }
@@ -290,6 +290,9 @@ fn main() {
     // dbg!("{:?}", &atom2usize);
     // dbg!("{:?}", &var2bdd);
 
+    // TODO those are time consuming
+    // maybe parallel?
+    // io can be paralleled?
     let bdd: Bdd = parse::parse_cfg_edge(&atom2usize, &all_facts, &var2bdd, &variable_set);
     dump_bdd(bddvar_count, bdd, "cfg_edge");
 
