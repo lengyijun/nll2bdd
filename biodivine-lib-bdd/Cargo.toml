@@ -1,0 +1,27 @@
+[package]
+name = "biodivine-lib-bdd"
+version = "0.2.1"
+authors = ["Samuel Pastva <daemontus@gmail.com>"]
+edition = "2018"
+description = "A simple thread-safe implementation of basic binary decision diagrams."
+homepage = "https://github.com/sybila/biodivine-lib-bdd"
+repository = "https://github.com/sybila/biodivine-lib-bdd"
+readme = "README.md"
+keywords = ["bdd", "boolean-expression", "symbolic"]
+categories = ["data-structures", "mathematics", "science"]
+license = "MIT"
+
+[badges]
+travis-ci = { repository = "sybila/biodivine-lib-bdd" }
+codecov = { repository = "sybila/biodivine-lib-bdd" }
+maintenance = { status = "actively-developed" }
+
+[dependencies]
+fxhash = "0.2.1"
+
+[dev-dependencies]
+rand = "0.7"
+
+# Enable rich docs for some online docs autogen services.
+[package.metadata.docs.rs]
+rustdoc-args = ["--html-in-header", "./res/docs-head.html"]
