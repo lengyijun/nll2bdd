@@ -42,7 +42,14 @@ impl DNFContext {
     }
 
     fn dnf(mut self, vv: Vec<Vec<bool>>) -> Bdd {
-        self.dnf_inner(0, vv);
+        let b=self.dnf_inner(0, vv);
+        if b==0 {
+            return Bdd(vec![self.res[0] ]);
+        }
+        if b==1 {
+            return Bdd(vec![self.res[0],self.res[1]]);
+        }
+        assert_eq!(b as usize,self.res.len()-1);
         Bdd(self.res)
     }
 
@@ -125,6 +132,35 @@ impl Bdd {
 #[cfg(test)]
 mod tests {
     use crate::*;
+
+    #[test]
+    fn dnf_false(){
+        let bddvariableset = BddVariableSet::new_anonymous(3);
+        let vv:Vec<Vec<bool>> = vec![];
+        let bdd1 = Bdd::dnf(&bddvariableset, bddvariableset.variables(), vv);
+        let bdd2 = bddvariableset.mk_false();
+        assert!(bdd1.iff(&bdd2).is_true());
+        assert_eq!(bdd1.size(), bdd2.size());
+    }
+
+    #[test]
+    fn dnf_true(){
+        let bddvariableset = BddVariableSet::new_anonymous(3);
+        let vv = vec![
+            vec![true, true, true],
+            vec![true, true, false],
+            vec![true, false, true],
+            vec![true, false , false],
+            vec![false, true, true],
+            vec![false, true, false],
+            vec![false, false, true],
+            vec![false, false , false],
+        ];
+        let bdd1 = Bdd::dnf(&bddvariableset, bddvariableset.variables(), vv);
+        let bdd2 = bddvariableset.mk_true();
+        assert!(bdd1.iff(&bdd2).is_true());
+        assert_eq!(bdd1.size(), bdd2.size());
+    }
 
     #[test]
     fn small_dnf1() {
